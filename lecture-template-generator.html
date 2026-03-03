@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台大醫院醫學研究部｜演講文件產生器</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&family=DM+Serif+Display:ital@0;1&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-light: #3d3d3d;
+    --ink-muted: #6b6b6b;
+    --rule: #c8c0b0;
+    --rule-light: #e8e2d8;
+    --paper: #faf8f4;
+    --paper-warm: #f4f0e8;
+    --accent: #8b1a1a;
+    --accent-light: #b84444;
+    --accent-muted: #c87c7c;
+    --gold: #9a7c2e;
+    --gold-light: #c4a855;
+    --sidebar-w: 280px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    border-bottom: 3px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .header-brand .org {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    color: var(--rule);
+    font-weight: 300;
+  }
+  .header-brand .title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: white;
+  }
+  .header-tabs {
+    display: flex;
+    gap: 0;
+    height: 100%;
+  }
+  .tab-btn {
+    height: 100%;
+    padding: 0 24px;
+    background: none;
+    border: none;
+    color: var(--rule);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tab-btn:hover { color: white; }
+  .tab-btn.active {
+    color: white;
+    border-bottom-color: var(--accent);
+  }
+
+  /* ── Main Layout ── */
+  .main-wrap {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ── Sidebar ── */
+  aside {
+    width: var(--sidebar-w);
+    background: var(--paper-warm);
+    border-right: 1px solid var(--rule-light);
+    overflow-y: auto;
+    padding: 28px 24px;
+    flex-shrink: 0;
+  }
+  .sidebar-section {
+    margin-bottom: 24px;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sidebar-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .field-group { margin-bottom: 14px; }
+  .field-label {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-muted);
+    margin-bottom: 4px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .field-required {
+    color: var(--accent);
+    margin-left: 2px;
+  }
+  input[type="text"], input[type="url"], textarea, select {
+    width: 100%;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 7px 10px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12.5px;
+    color: var(--ink);
+    background: white;
+    transition: border-color 0.15s;
+    line-height: 1.5;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(139,26,26,0.08);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    cursor: pointer;
+  }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .type-chip {
+    padding: 7px 0;
+    text-align: center;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    background: white;
+    color: var(--ink-muted);
+    transition: all 0.15s;
+    font-family: 'Noto Sans TC', sans-serif;
+    letter-spacing: 0.05em;
+  }
+  .type-chip:hover { border-color: var(--accent-muted); color: var(--accent); }
+  .type-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    font-weight: 500;
+  }
+
+  /* ── Content Area ── */
+  .content-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* ── Mode Switcher ── */
+  .mode-bar {
+    display: flex;
+    align-items: center;
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--rule-light);
+    background: white;
+    gap: 8px;
+  }
+  .mode-btn {
+    padding: 6px 18px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: none;
+    cursor: pointer;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.08em;
+    transition: all 0.15s;
+  }
+  .mode-btn:hover { border-color: var(--accent-muted); color: var(--accent); }
+  .mode-btn.active {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: white;
+  }
+  .mode-sep { width: 1px; height: 20px; background: var(--rule-light); margin: 0 4px; }
+  .gen-btn {
+    margin-left: auto;
+    padding: 8px 24px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .gen-btn:hover { background: var(--accent-light); }
+  .gen-btn svg { flex-shrink: 0; }
+
+  /* ── Preview Panel ── */
+  .panels {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    display: flex;
+    gap: 24px;
+  }
+  .panel {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .panel.visible { display: flex; }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .panel-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+  }
+  .copy-btn {
+    padding: 5px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    background: white;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--ink-muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .copy-btn.copied { border-color: #2d7a2d; color: #2d7a2d; }
+
+  /* ── Document Preview ── */
+  .doc-preview {
+    background: white;
+    border: 1px solid var(--rule-light);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .doc-inner {
+    padding: 40px 44px;
+    font-family: 'Noto Serif TC', serif;
+    line-height: 1.85;
+    color: var(--ink);
+    min-height: 400px;
+  }
+
+  /* Announcement styles */
+  .ann-header {
+    text-align: center;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+  }
+  .ann-header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 1px;
+    background: var(--rule);
+    margin: 8px auto 0;
+  }
+  .ann-series {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 10px;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .ann-type-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border: 1px solid var(--ink);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--ink-muted);
+    margin-bottom: 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .ann-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .ann-speaker {
+    font-size: 14px;
+    color: var(--ink-muted);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+  }
+
+  .ann-abstract {
+    background: var(--paper-warm);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: var(--ink-light);
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .ann-abstract-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+
+  .ann-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    font-size: 13.5px;
+    margin-top: 20px;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .meta-key {
+    color: var(--ink-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .meta-val { color: var(--ink); }
+  .meta-val a { color: var(--accent); text-decoration: none; }
+  .meta-val a:hover { text-decoration: underline; }
+
+  .ann-divider {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid var(--rule-light);
+  }
+
+  /* Post-event styles */
+  .post-header {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .post-type-label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 500;
+  }
+  .post-title {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 4px;
+  }
+  .post-narrative {
+    font-size: 13.5px;
+    line-height: 1.95;
+    color: var(--ink-light);
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper-warm);
+    padding: 16px 20px;
+    border-left: 3px solid var(--gold);
+    margin: 16px 0 20px;
+  }
+
+  /* ── Plain Text Panel ── */
+  .text-output {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--rule-light);
+    padding: 24px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--ink-light);
+    white-space: pre-wrap;
+    overflow-y: auto;
+    resize: none;
+    outline: none;
+    cursor: text;
+  }
+
+  /* ── Empty State ── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--ink-muted);
+    padding: 60px 40px;
+    text-align: center;
+  }
+  .empty-icon {
+    width: 60px;
+    height: 60px;
+    opacity: 0.2;
+  }
+  .empty-state p {
+    font-size: 14px;
+    font-family: 'Noto Serif TC', serif;
+    letter-spacing: 0.08em;
+    max-width: 280px;
+    line-height: 1.8;
+  }
+
+  /* ── Fieldset divider ── */
+  .field-divider {
+    height: 1px;
+    background: var(--rule-light);
+    margin: 18px 0;
+  }
+
+  /* ── Post-event extra fields ── */
+  .post-fields { display: none; }
+  .post-fields.visible { display: block; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-family: 'Noto Sans TC', sans-serif;
+    letter-spacing: 0.05em;
+    transform: translateY(60px);
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 999;
+    border-left: 3px solid var(--gold-light);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+
+  @media (max-width: 900px) {
+    aside { width: 240px; }
+    .doc-inner { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <span class="org">National Taiwan University Hospital</span>
+    <span class="title">醫學研究部・演講文件產生器</span>
+  </div>
+  <nav class="header-tabs">
+    <button class="tab-btn active" onclick="switchTab('announcement', this)">演講公告</button>
+    <button class="tab-btn" onclick="switchTab('postevent', this)">會後紀錄</button>
+  </nav>
+</header>
+
+<div class="main-wrap">
+  <!-- ── Sidebar ── -->
+  <aside>
+    <div class="sidebar-section">
+      <div class="sidebar-label">演講類型</div>
+      <div class="type-grid">
+        <button class="type-chip active" data-type="學術演講" onclick="setType(this)">學術演講</button>
+        <button class="type-chip" data-type="經驗分享" onclick="setType(this)">經驗分享</button>
+        <button class="type-chip" data-type="工作坊" onclick="setType(this)">工作坊</button>
+        <button class="type-chip" data-type="其他" onclick="setType(this)">其他</button>
+      </div>
+    </div>
+
+    <div class="field-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">基本資訊</div>
+
+      <div class="field-group">
+        <label class="field-label">系列課程名稱（如有）</label>
+        <input type="text" id="f-series" placeholder="例：生成式AI工具輔助論文寫作系列課程">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">講題 <span class="field-required">*</span></label>
+        <input type="text" id="f-topic" placeholder="請輸入演講題目">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">講者姓名 <span class="field-required">*</span></label>
+        <input type="text" id="f-speaker" placeholder="例：李季青副教授">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">講者單位</label>
+        <input type="text" id="f-affiliation" placeholder="例：長庚大學資訊工程系">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">日期時間 <span class="field-required">*</span></label>
+        <input type="text" id="f-datetime" placeholder="例：115年1月29日 (四) 12:00-13:00">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">地點 <span class="field-required">*</span></label>
+        <input type="text" id="f-venue" placeholder="例：台大醫院西址第七講堂">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">主辦單位</label>
+        <input type="text" id="f-organizer" value="醫學研究部">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">承辦人員</label>
+        <input type="text" id="f-contact" placeholder="例：醫學研究部 陳巧瑜管理師(分機263254)">
+      </div>
+    </div>
+
+    <!-- Announcement-only fields -->
+    <div id="ann-fields">
+      <div class="field-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">公告專用</div>
+        <div class="field-group">
+          <label class="field-label">演講摘要</label>
+          <textarea id="f-abstract" rows="6" placeholder="請輸入演講摘要內容…"></textarea>
+        </div>
+        <div class="field-group">
+          <label class="field-label">報名網址</label>
+          <input type="url" id="f-regurl" placeholder="https://…">
+        </div>
+      </div>
+    </div>
+
+    <!-- Post-event-only fields -->
+    <div id="post-fields" class="post-fields">
+      <div class="field-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">會後專用</div>
+        <div class="field-group">
+          <label class="field-label">主持人</label>
+          <input type="text" id="f-host" placeholder="例：楊鎧鍵教授">
+        </div>
+        <div class="field-group">
+          <label class="field-label">主持人職稱/單位</label>
+          <input type="text" id="f-host-role" placeholder="例：醫學研究部規劃訓練組組長">
+        </div>
+        <div class="field-group">
+          <label class="field-label">課程錄影連結（限院內）</label>
+          <input type="url" id="f-video" placeholder="https://edu.ntuh.gov.tw/course/…">
+        </div>
+        <div class="field-group">
+          <label class="field-label">院內課號</label>
+          <input type="text" id="f-courseno" placeholder="例：200332">
+        </div>
+        <div class="field-group">
+          <label class="field-label">工作人員</label>
+          <input type="text" id="f-staff" placeholder="例：陳巧瑜、高俐婷、范曉寧">
+        </div>
+        <div class="field-group">
+          <label class="field-label">補充說明／本部摘要</label>
+          <textarea id="f-summary" rows="4" placeholder="說明課程重點與部門規劃…"></textarea>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <div class="content-area">
+    <div class="mode-bar">
+      <button class="mode-btn active" onclick="setMode('preview', this)">預覽</button>
+      <div class="mode-sep"></div>
+      <button class="mode-btn" onclick="setMode('text', this)">純文字</button>
+      <button class="gen-btn" onclick="generate()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1v12M1 7h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        產生文件
+      </button>
+    </div>
+
+    <div class="panels">
+      <!-- Preview Panel -->
+      <div class="panel visible" id="panel-preview">
+        <div class="panel-header">
+          <span class="panel-title" id="panel-label">公告預覽</span>
+          <button class="copy-btn" id="copy-preview-btn" onclick="copyDoc()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+            複製
+          </button>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="empty-state">
+          <svg class="empty-icon" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="8" y="4" width="36" height="48" rx="2" stroke="currentColor" stroke-width="2"/>
+            <line x1="16" y1="18" x2="36" y2="18" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="26" x2="36" y2="26" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="34" x2="28" y2="34" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="46" cy="46" r="10" fill="white" stroke="currentColor" stroke-width="2"/>
+            <path d="M43 46h6M46 43v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <p>填寫左側表單後<br>點擊「產生文件」</p>
+        </div>
+
+        <!-- Document output -->
+        <div class="doc-preview" id="doc-preview" style="display:none">
+          <div class="doc-inner" id="doc-inner"></div>
+        </div>
+      </div>
+
+      <!-- Text Panel -->
+      <div class="panel" id="panel-text">
+        <div class="panel-header">
+          <span class="panel-title">純文字輸出</span>
+          <button class="copy-btn" id="copy-text-btn" onclick="copyText()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+            複製
+          </button>
+        </div>
+        <div class="text-output" id="text-output" contenteditable="true"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">已複製到剪貼簿</div>
+
+<script>
+// ── State ──
+let currentTab = 'announcement'; // 'announcement' | 'postevent'
+let currentMode = 'preview';
+let currentType = '學術演講';
+let generated = false;
+
+// ── Tab switching ──
+function switchTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+
+  const annFields = document.getElementById('ann-fields');
+  const postFields = document.getElementById('post-fields');
+  const panelLabel = document.getElementById('panel-label');
+
+  if (tab === 'announcement') {
+    annFields.style.display = '';
+    postFields.classList.remove('visible');
+    panelLabel.textContent = '公告預覽';
+  } else {
+    annFields.style.display = 'none';
+    postFields.classList.add('visible');
+    panelLabel.textContent = '會後紀錄預覽';
+  }
+  resetOutput();
+}
+
+function setType(el) {
+  document.querySelectorAll('.type-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentType = el.dataset.type;
+}
+
+function setMode(mode, el) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-preview').classList.toggle('visible', mode === 'preview');
+  document.getElementById('panel-text').classList.toggle('visible', mode === 'text');
+}
+
+function resetOutput() {
+  generated = false;
+  document.getElementById('empty-state').style.display = '';
+  document.getElementById('doc-preview').style.display = 'none';
+  document.getElementById('doc-inner').innerHTML = '';
+  document.getElementById('text-output').textContent = '';
+}
+
+// ── Helpers ──
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+function typeLabel() {
+  const map = { '學術演講': '學術演講', '經驗分享': '經驗分享', '工作坊': '工作坊', '其他': '講座' };
+  return map[currentType] || currentType;
+}
+
+// ── Generate ──
+function generate() {
+  const topic = v('f-topic');
+  const speaker = v('f-speaker');
+  const datetime = v('f-datetime');
+  const venue = v('f-venue');
+
+  if (!topic || !speaker || !datetime || !venue) {
+    showToast('請填寫必填欄位（講題、講者、時間、地點）');
+    return;
+  }
+
+  if (currentTab === 'announcement') generateAnnouncement();
+  else generatePostEvent();
+
+  generated = true;
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('doc-preview').style.display = '';
+}
+
+function generateAnnouncement() {
+  const series = v('f-series');
+  const topic = v('f-topic');
+  const speaker = v('f-speaker');
+  const affiliation = v('f-affiliation');
+  const datetime = v('f-datetime');
+  const venue = v('f-venue');
+  const organizer = v('f-organizer') || '醫學研究部';
+  const contact = v('f-contact');
+  const abstract = v('f-abstract');
+  const regUrl = v('f-regurl');
+
+  const speakerFull = affiliation ? `${affiliation} ${speaker}` : speaker;
+
+  // Preview HTML
+  let html = `<div class="ann-header">`;
+  if (series) html += `<div class="ann-series">台大醫院醫學研究部＿${series}</div>`;
+  html += `<div class="ann-type-badge">${typeLabel()}</div>`;
+  html += `<div class="ann-title">${topic}</div>`;
+  html += `<div class="ann-speaker">${speakerFull}</div>`;
+  html += `</div>`;
+
+  if (abstract) {
+    html += `<div class="ann-abstract">
+      <div class="ann-abstract-label">演講摘要</div>
+      ${abstract}
+    </div>`;
+  }
+
+  html += `<div class="ann-meta">`;
+  html += `<span class="meta-key">時間</span><span class="meta-val">${datetime}</span>`;
+  html += `<span class="meta-key">地點</span><span class="meta-val">${venue}</span>`;
+  if (regUrl) html += `<span class="meta-key">報名網址</span><span class="meta-val"><a href="${regUrl}" target="_blank">${regUrl}</a></span>`;
+  html += `<span class="meta-key">主辦單位</span><span class="meta-val">${organizer}</span>`;
+  if (contact) html += `<span class="meta-key">承辦人員</span><span class="meta-val">${contact}</span>`;
+  html += `</div>`;
+
+  document.getElementById('doc-inner').innerHTML = html;
+
+  // Plain text
+  let txt = '';
+  if (series) txt += `【台大醫院醫學研究部_${series}】\n\n`;
+  txt += `講題：${topic}\n`;
+  txt += `講者：${speakerFull}\n`;
+  if (abstract) txt += `\n演講摘要：\n${abstract}\n`;
+  txt += `\n時間：${datetime}\n`;
+  txt += `地點：${venue}\n`;
+  if (regUrl) txt += `報名網址：${regUrl}\n`;
+  txt += `主辦單位：${organizer}\n`;
+  if (contact) txt += `承辦人員：${contact}\n`;
+
+  document.getElementById('text-output').textContent = txt.trim();
+}
+
+function generatePostEvent() {
+  const series = v('f-series');
+  const topic = v('f-topic');
+  const speaker = v('f-speaker');
+  const affiliation = v('f-affiliation');
+  const datetime = v('f-datetime');
+  const venue = v('f-venue');
+  const organizer = v('f-organizer') || '醫學研究部';
+  const contact = v('f-contact');
+  const host = v('f-host');
+  const hostRole = v('f-host-role');
+  const video = v('f-video');
+  const courseno = v('f-courseno');
+  const staff = v('f-staff');
+  const summary = v('f-summary');
+
+  const speakerFull = affiliation ? `${affiliation} ${speaker}` : speaker;
+  const hostFull = hostRole && host ? `${hostRole}${host}` : host;
+
+  // Narrative paragraph
+  let narrative = '';
+  if (summary) {
+    narrative = summary;
+  } else {
+    narrative = `${organizer}邀請到${speakerFull}`;
+    if (series) narrative += `，前來進行「${series}」課程`;
+    narrative += `，本次${typeLabel()}提供同仁更多元的學習方向。`;
+    if (hostFull) narrative += `本次課程由${hostFull}主持。`;
+    if (courseno || video) {
+      narrative += `課程錄影檔`;
+      if (courseno) narrative += `（課號：${courseno}）`;
+      narrative += `已上傳至院內網，歡迎院內同仁前往收看。`;
+    }
+    narrative += `本部也將持續辦理相關講座，敬請持續關注本部粉絲團。`;
+  }
+
+  let html = `<div class="post-header">`;
+  html += `<div class="post-type-label">[${typeLabel()}]${series ? '　' + series : ''}</div>`;
+  html += `<div class="post-title">${topic}</div>`;
+  html += `</div>`;
+
+  html += `<div class="post-narrative">${narrative}</div>`;
+
+  html += `<div class="ann-meta">`;
+  html += `<span class="meta-key">講題</span><span class="meta-val">${topic}</span>`;
+  html += `<span class="meta-key">講者</span><span class="meta-val">${speakerFull}</span>`;
+  html += `<span class="meta-key">時間</span><span class="meta-val">${datetime}</span>`;
+  html += `<span class="meta-key">地點</span><span class="meta-val">${venue}</span>`;
+  html += `<span class="meta-key">主辦單位</span><span class="meta-val">${organizer}</span>`;
+  if (video) html += `<span class="meta-key">講座錄影</span><span class="meta-val"><a href="${video}" target="_blank">${video}</a>（限院內）</span>`;
+  if (contact) html += `<span class="meta-key">承辦人員</span><span class="meta-val">${contact}</span>`;
+  if (staff) html += `<span class="meta-key">工作人員</span><span class="meta-val">${staff}</span>`;
+  html += `</div>`;
+
+  document.getElementById('doc-inner').innerHTML = html;
+
+  // Plain text
+  let txt = `[${typeLabel()}] ${series || topic}\n\n`;
+  txt += narrative + '\n\n';
+  txt += `講題：${topic}\n`;
+  txt += `講者：${speakerFull}\n`;
+  txt += `時間：${datetime}\n`;
+  txt += `地點：${venue}\n`;
+  txt += `主辦單位：${organizer}\n`;
+  if (video) txt += `講座錄影(限院內)：${video}\n`;
+  if (contact) txt += `承辦人員：${contact}\n`;
+  if (staff) txt += `工作人員：${staff}\n`;
+
+  document.getElementById('text-output').textContent = txt.trim();
+}
+
+// ── Copy ──
+function copyDoc() {
+  const text = document.getElementById('text-output').textContent;
+  if (!text) { showToast('請先產生文件'); return; }
+  navigator.clipboard.writeText(text).then(() => showToast('已複製純文字內容'));
+  const btn = document.getElementById('copy-preview-btn');
+  btn.classList.add('copied');
+  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 已複製`;
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg> 複製`;
+  }, 2000);
+}
+
+function copyText() {
+  const text = document.getElementById('text-output').textContent;
+  if (!text) { showToast('請先產生文件'); return; }
+  navigator.clipboard.writeText(text).then(() => showToast('已複製到剪貼簿'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── Pre-fill example on load ──
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('f-series').value = '生成式AI工具輔助論文寫作系列課程';
+  document.getElementById('f-topic').value = '生成式 AI 在生醫資料分析的應用：效率、再現性與資料安全';
+  document.getElementById('f-speaker').value = '李季青副教授';
+  document.getElementById('f-affiliation').value = '長庚大學資訊工程系';
+  document.getElementById('f-datetime').value = '115年1月29日 (四) 12:00-13:00';
+  document.getElementById('f-venue').value = '台大醫院西址第七講堂';
+  document.getElementById('f-contact').value = '醫學研究部 陳巧瑜管理師(分機263254)';
+  document.getElementById('f-regurl').value = 'https://redcap.ntuh.gov.tw/surveys/?s=KAXD7DWRR8LFHRYN';
+  document.getElementById('f-abstract').value = '生成式 AI透過自然語言理解研究者的分析需求，協助建立資料清洗、統計摘要與科學圖表製作。然而，仍可能存在不透明、細節不一致、邏輯瑕疵與版本不可控等問題，若未經妥善驗證，容易在研究流程中埋下再現性不足或誤用資料的隱患。本主題探討如何有效引導 AI 生成可追溯、可版本化且易於重複執行的程式碼，強化研究流程的再現性並提升分析紀錄的可維護性。最後，基於生醫資料的敏感特性，也將談及使用雲端 AI 工具時應遵循的資料治理原則，以及降低資料外洩風險的實務作法，包括資料脫敏、局部資料模擬，以及以程式碼互動替代直接上傳原始資料等安全策略。';
+  // Post-event fields
+  document.getElementById('f-host').value = '楊鎧鍵教授';
+  document.getElementById('f-host-role').value = '醫學研究部規劃訓練組組長';
+  document.getElementById('f-video').value = 'https://edu.ntuh.gov.tw/course/200332';
+  document.getElementById('f-courseno').value = '200332';
+  document.getElementById('f-staff').value = '陳巧瑜、高俐婷、范曉寧、黃舒宜';
+});
+</script>
+</body>
+</html>
