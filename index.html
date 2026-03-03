@@ -3,862 +3,938 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>台大醫院醫學研究部｜演講文件產生器</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&family=DM+Serif+Display:ital@0;1&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<title>台大醫院醫學研究部｜演講文件管理系統</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ink: #1a1a1a;
-    --ink-light: #3d3d3d;
-    --ink-muted: #6b6b6b;
-    --rule: #c8c0b0;
-    --rule-light: #e8e2d8;
-    --paper: #faf8f4;
-    --paper-warm: #f4f0e8;
-    --accent: #8b1a1a;
-    --accent-light: #b84444;
-    --accent-muted: #c87c7c;
-    --gold: #9a7c2e;
-    --gold-light: #c4a855;
-    --sidebar-w: 280px;
-  }
+/* ── Variables ── */
+:root {
+  --ink: #1a1a1a;
+  --ink-light: #3d3d3d;
+  --ink-muted: #6b6b6b;
+  --rule: #c8c0b0;
+  --rule-light: #e8e2d8;
+  --paper: #faf8f4;
+  --paper-warm: #f4f0e8;
+  --accent: #8b1a1a;
+  --accent-light: #b84444;
+  --accent-muted: #c87c7c;
+  --gold: #9a7c2e;
+  --gold-light: #c4a855;
+  --navy: #1a2b4a;
+  --navy-light: #253a60;
+  --sidebar-w: 290px;
+  --header-h: 60px;
+  --nav-h: 50px;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'Noto Sans TC', sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* ── Header ── */
-  header {
-    background: var(--ink);
-    color: var(--paper);
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-    border-bottom: 3px solid var(--accent);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-brand {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-  .header-brand .org {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 13px;
-    letter-spacing: 0.15em;
-    color: var(--rule);
-    font-weight: 300;
-  }
-  .header-brand .title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: white;
-  }
-  .header-tabs {
-    display: flex;
-    gap: 0;
-    height: 100%;
-  }
-  .tab-btn {
-    height: 100%;
-    padding: 0 24px;
-    background: none;
-    border: none;
-    color: var(--rule);
-    font-family: 'Noto Serif TC', serif;
-    font-size: 14px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -3px;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .tab-btn:hover { color: white; }
-  .tab-btn.active {
-    color: white;
-    border-bottom-color: var(--accent);
-  }
+/* ── App Header ── */
+.app-header {
+  height: var(--header-h);
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  gap: 16px;
+  border-bottom: 3px solid var(--accent);
+  position: sticky; top: 0; z-index: 200;
+  flex-shrink: 0;
+}
+.header-emblem {
+  width: 36px; height: 36px;
+  border: 1.5px solid var(--gold-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 14px; color: var(--gold-light);
+  flex-shrink: 0;
+}
+.header-brand { display: flex; flex-direction: column; gap: 1px; }
+.header-brand .org {
+  font-size: 11px; letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.45); font-weight: 300;
+}
+.header-brand .title {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 16px; font-weight: 600;
+  letter-spacing: 0.08em; color: white;
+}
 
-  /* ── Main Layout ── */
-  .main-wrap {
-    display: flex;
-    flex: 1;
-    min-height: 0;
-  }
+/* ── Top Nav (module tabs) ── */
+.top-nav {
+  height: var(--nav-h);
+  background: var(--navy);
+  display: flex;
+  align-items: stretch;
+  padding: 0 32px;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 22px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  font-family: 'Noto Serif TC', serif;
+  font-size: 13px; letter-spacing: 0.1em;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.18s;
+}
+.nav-btn:hover { color: rgba(255,255,255,0.85); }
+.nav-btn.active {
+  color: white;
+  border-bottom-color: var(--gold-light);
+}
+.nav-btn .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold-light); opacity: 0;
+  transition: opacity 0.18s;
+}
+.nav-btn.active .dot { opacity: 1; }
 
-  /* ── Sidebar ── */
-  aside {
-    width: var(--sidebar-w);
-    background: var(--paper-warm);
-    border-right: 1px solid var(--rule-light);
-    overflow-y: auto;
-    padding: 28px 24px;
-    flex-shrink: 0;
-  }
-  .sidebar-section {
-    margin-bottom: 24px;
-  }
-  .sidebar-label {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .sidebar-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--rule);
-  }
+/* ── Body layout ── */
+.app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
 
-  .field-group { margin-bottom: 14px; }
-  .field-label {
-    display: block;
-    font-size: 12px;
-    color: var(--ink-muted);
-    margin-bottom: 4px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-  }
-  .field-required {
-    color: var(--accent);
-    margin-left: 2px;
-  }
-  input[type="text"], input[type="url"], textarea, select {
-    width: 100%;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    padding: 7px 10px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 12.5px;
-    color: var(--ink);
-    background: white;
-    transition: border-color 0.15s;
-    line-height: 1.5;
-  }
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px rgba(139,26,26,0.08);
-  }
-  textarea { resize: vertical; min-height: 80px; }
-  select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    cursor: pointer;
-  }
+/* ── Shared Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--paper-warm);
+  border-right: 1px solid var(--rule-light);
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-inner {
+  padding: 24px 20px;
+  flex: 1;
+}
+.sb-section { margin-bottom: 20px; }
+.sb-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.2em; color: var(--accent);
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 10px;
+}
+.sb-label::after { content:''; flex:1; height:1px; background:var(--rule); }
 
-  .type-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .type-chip {
-    padding: 7px 0;
-    text-align: center;
-    border: 1px solid var(--rule);
-    border-radius: 3px;
-    font-size: 12px;
-    cursor: pointer;
-    background: white;
-    color: var(--ink-muted);
-    transition: all 0.15s;
-    font-family: 'Noto Sans TC', sans-serif;
-    letter-spacing: 0.05em;
-  }
-  .type-chip:hover { border-color: var(--accent-muted); color: var(--accent); }
-  .type-chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-    font-weight: 500;
-  }
+/* form elements */
+.fg { margin-bottom: 12px; }
+.fg label {
+  display: block; font-size: 11.5px;
+  color: var(--ink-muted); margin-bottom: 4px;
+  font-weight: 500; letter-spacing: 0.04em;
+}
+.fg .req { color: var(--accent); }
+.fg input[type=text], .fg input[type=url], .fg input[type=date],
+.fg input[type=time], .fg textarea, .fg select {
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 7px 10px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12.5px; color: var(--ink);
+  background: white;
+  transition: border-color 0.15s;
+  line-height: 1.5;
+  outline: none;
+}
+.fg input:focus, .fg textarea:focus, .fg select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(139,26,26,0.08);
+}
+.fg textarea { resize: vertical; min-height: 72px; }
+.fg select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  cursor: pointer;
+}
 
-  /* ── Content Area ── */
-  .content-area {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    overflow: hidden;
-  }
+/* datetime row */
+.datetime-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.time-range { display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; align-items: end; }
+.time-range span { font-size: 12px; color: var(--ink-muted); padding-bottom: 8px; text-align: center; }
 
-  /* ── Mode Switcher ── */
-  .mode-bar {
-    display: flex;
-    align-items: center;
-    padding: 12px 32px;
-    border-bottom: 1px solid var(--rule-light);
-    background: white;
-    gap: 8px;
-  }
-  .mode-btn {
-    padding: 6px 18px;
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    background: none;
-    cursor: pointer;
-    font-family: 'Noto Serif TC', serif;
-    font-size: 13px;
-    color: var(--ink-muted);
-    letter-spacing: 0.08em;
-    transition: all 0.15s;
-  }
-  .mode-btn:hover { border-color: var(--accent-muted); color: var(--accent); }
-  .mode-btn.active {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: white;
-  }
-  .mode-sep { width: 1px; height: 20px; background: var(--rule-light); margin: 0 4px; }
-  .gen-btn {
-    margin-left: auto;
-    padding: 8px 24px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 2px;
-    font-family: 'Noto Serif TC', serif;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    transition: background 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .gen-btn:hover { background: var(--accent-light); }
-  .gen-btn svg { flex-shrink: 0; }
+/* type chips */
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.type-chip {
+  padding: 7px 0; text-align: center;
+  border: 1px solid var(--rule); border-radius: 3px;
+  font-size: 12px; cursor: pointer;
+  background: white; color: var(--ink-muted);
+  transition: all 0.15s;
+  font-family: 'Noto Sans TC', sans-serif; letter-spacing: 0.04em;
+}
+.type-chip:hover { border-color: var(--accent-muted); color: var(--accent); }
+.type-chip.active { background: var(--accent); border-color: var(--accent); color: white; font-weight: 500; }
 
-  /* ── Preview Panel ── */
-  .panels {
-    flex: 1;
-    overflow-y: auto;
-    padding: 32px;
-    display: flex;
-    gap: 24px;
-  }
-  .panel {
-    flex: 1;
-    display: none;
-    flex-direction: column;
-    min-width: 0;
-  }
-  .panel.visible { display: flex; }
-  .panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .panel-title {
-    font-family: 'Noto Serif TC', serif;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    color: var(--ink-muted);
-    text-transform: uppercase;
-  }
-  .copy-btn {
-    padding: 5px 14px;
-    border: 1px solid var(--rule);
-    border-radius: 2px;
-    background: white;
-    font-size: 12px;
-    cursor: pointer;
-    color: var(--ink-muted);
-    font-family: 'Noto Sans TC', sans-serif;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.15s;
-  }
-  .copy-btn:hover { border-color: var(--ink); color: var(--ink); }
-  .copy-btn.copied { border-color: #2d7a2d; color: #2d7a2d; }
+.sb-divider { height: 1px; background: var(--rule-light); margin: 16px 0; }
 
-  /* ── Document Preview ── */
-  .doc-preview {
-    background: white;
-    border: 1px solid var(--rule-light);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    flex: 1;
-    overflow: hidden;
-  }
+/* Generate button */
+.gen-btn {
+  width: 100%; padding: 10px;
+  background: var(--accent); color: white;
+  border: none; border-radius: 3px;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 13px; letter-spacing: 0.12em;
+  cursor: pointer; transition: background 0.15s;
+  margin-top: 8px;
+}
+.gen-btn:hover { background: var(--accent-light); }
 
-  .doc-inner {
-    padding: 40px 44px;
-    font-family: 'Noto Serif TC', serif;
-    line-height: 1.85;
-    color: var(--ink);
-    min-height: 400px;
-  }
+/* ── Content area ── */
+.content {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
 
-  /* Announcement styles */
-  .ann-header {
-    text-align: center;
-    margin-bottom: 28px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid var(--ink);
-    position: relative;
-  }
-  .ann-header::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 1px;
-    background: var(--rule);
-    margin: 8px auto 0;
-  }
-  .ann-series {
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    font-weight: 500;
-    margin-bottom: 10px;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .ann-type-badge {
-    display: inline-block;
-    padding: 3px 12px;
-    border: 1px solid var(--ink);
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    color: var(--ink-muted);
-    margin-bottom: 12px;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .ann-title {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    line-height: 1.5;
-    margin-bottom: 8px;
-  }
-  .ann-speaker {
-    font-size: 14px;
-    color: var(--ink-muted);
-    font-family: 'Noto Sans TC', sans-serif;
-    font-weight: 300;
-  }
+/* Module panels */
+.module { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.module.active { display: flex; }
 
-  .ann-abstract {
-    background: var(--paper-warm);
-    border-left: 3px solid var(--accent);
-    padding: 16px 20px;
-    margin: 20px 0;
-    font-size: 13.5px;
-    line-height: 1.9;
-    color: var(--ink-light);
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .ann-abstract-label {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
+/* mode bar */
+.mode-bar {
+  display: flex; align-items: center;
+  padding: 10px 28px;
+  border-bottom: 1px solid var(--rule-light);
+  background: white; gap: 6px;
+  flex-shrink: 0;
+}
+.mode-btn {
+  padding: 5px 16px;
+  border: 1px solid var(--rule); border-radius: 2px;
+  background: none; cursor: pointer;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 12.5px; color: var(--ink-muted);
+  letter-spacing: 0.08em; transition: all 0.15s;
+}
+.mode-btn:hover { border-color: var(--accent-muted); color: var(--accent); }
+.mode-btn.active { background: var(--ink); border-color: var(--ink); color: white; }
+.mode-sep { width: 1px; height: 18px; background: var(--rule-light); margin: 0 2px; }
+.action-btn {
+  margin-left: auto;
+  padding: 6px 18px;
+  border: none; border-radius: 2px;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  transition: all 0.15s;
+}
+.action-btn.copy { background: var(--ink); color: white; }
+.action-btn.copy:hover { background: var(--ink-light); }
+.action-btn.copy.done { background: #2d7a2d; }
+.action-btn.export { background: var(--gold); color: white; }
+.action-btn.export:hover { background: var(--gold-light); }
 
-  .ann-meta {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 6px 16px;
-    font-size: 13.5px;
-    margin-top: 20px;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .meta-key {
-    color: var(--ink-muted);
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .meta-val { color: var(--ink); }
-  .meta-val a { color: var(--accent); text-decoration: none; }
-  .meta-val a:hover { text-decoration: underline; }
+/* output panels */
+.out-panels {
+  flex: 1; overflow-y: auto;
+  padding: 28px 32px;
+  display: flex; gap: 0;
+}
+.out-panel {
+  flex: 1; display: none; flex-direction: column; min-width: 0;
+}
+.out-panel.visible { display: flex; }
 
-  .ann-divider {
-    margin: 20px 0;
-    border: none;
-    border-top: 1px solid var(--rule-light);
-  }
+/* empty state */
+.empty {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px; color: var(--ink-muted);
+  text-align: center; padding: 60px 40px;
+}
+.empty svg { opacity: 0.15; }
+.empty p { font-family: 'Noto Serif TC', serif; font-size: 13.5px; letter-spacing: 0.08em; line-height: 1.8; }
 
-  /* Post-event styles */
-  .post-header {
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--rule);
-  }
-  .post-type-label {
-    font-size: 11px;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    margin-bottom: 8px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-weight: 500;
-  }
-  .post-title {
-    font-size: 20px;
-    font-weight: 600;
-    line-height: 1.5;
-    margin-bottom: 4px;
-  }
-  .post-narrative {
-    font-size: 13.5px;
-    line-height: 1.95;
-    color: var(--ink-light);
-    font-family: 'Noto Sans TC', sans-serif;
-    background: var(--paper-warm);
-    padding: 16px 20px;
-    border-left: 3px solid var(--gold);
-    margin: 16px 0 20px;
-  }
+/* doc preview */
+.doc-card {
+  background: white;
+  border: 1px solid var(--rule-light);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  flex: 1;
+}
+.doc-body {
+  padding: 36px 44px;
+  font-family: 'Noto Serif TC', serif;
+  line-height: 1.85; color: var(--ink);
+}
 
-  /* ── Plain Text Panel ── */
-  .text-output {
-    flex: 1;
-    background: white;
-    border: 1px solid var(--rule-light);
-    padding: 24px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 13px;
-    line-height: 1.9;
-    color: var(--ink-light);
-    white-space: pre-wrap;
-    overflow-y: auto;
-    resize: none;
-    outline: none;
-    cursor: text;
-  }
+/* text output */
+.text-out {
+  flex: 1; background: white;
+  border: 1px solid var(--rule-light);
+  padding: 22px 24px;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 13px; line-height: 1.9; color: var(--ink-light);
+  white-space: pre-wrap; outline: none; overflow-y: auto;
+}
 
-  /* ── Empty State ── */
-  .empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    color: var(--ink-muted);
-    padding: 60px 40px;
-    text-align: center;
-  }
-  .empty-icon {
-    width: 60px;
-    height: 60px;
-    opacity: 0.2;
-  }
-  .empty-state p {
-    font-size: 14px;
-    font-family: 'Noto Serif TC', serif;
-    letter-spacing: 0.08em;
-    max-width: 280px;
-    line-height: 1.8;
-  }
+/* ── Announcement doc styles ── */
+.ann-hd { text-align: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid var(--ink); }
+.ann-series { font-size: 11.5px; letter-spacing: 0.18em; color: var(--accent); font-weight: 500; margin-bottom: 8px; font-family: 'Noto Sans TC', sans-serif; }
+.ann-badge { display: inline-block; padding: 3px 12px; border: 1px solid var(--ink); font-size: 10.5px; letter-spacing: 0.15em; color: var(--ink-muted); margin-bottom: 10px; font-family: 'Noto Sans TC', sans-serif; }
+.ann-title { font-size: 19px; font-weight: 600; letter-spacing: 0.04em; line-height: 1.5; margin-bottom: 6px; }
+.ann-speaker { font-size: 13.5px; color: var(--ink-muted); font-family: 'Noto Sans TC', sans-serif; font-weight: 300; }
+.ann-abstract { background: var(--paper-warm); border-left: 3px solid var(--accent); padding: 14px 18px; margin: 18px 0; font-size: 13px; line-height: 1.9; color: var(--ink-light); font-family: 'Noto Sans TC', sans-serif; }
+.ann-abstract-lbl { font-size: 10px; letter-spacing: 0.2em; color: var(--accent); font-weight: 600; margin-bottom: 7px; font-family: 'Noto Sans TC', sans-serif; }
+.ann-meta { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; margin-top: 18px; font-family: 'Noto Sans TC', sans-serif; }
+.meta-k { color: var(--ink-muted); font-weight: 500; white-space: nowrap; }
+.meta-v { color: var(--ink); }
+.meta-v a { color: var(--accent); text-decoration: none; }
+.meta-v a:hover { text-decoration: underline; }
 
-  /* ── Fieldset divider ── */
-  .field-divider {
-    height: 1px;
-    background: var(--rule-light);
-    margin: 18px 0;
-  }
+/* ── Post-event doc styles ── */
+.post-lbl { font-size: 10.5px; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 7px; font-family: 'Noto Sans TC', sans-serif; font-weight: 500; }
+.post-title { font-size: 19px; font-weight: 600; line-height: 1.5; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+.post-narrative { font-size: 13px; line-height: 1.95; color: var(--ink-light); font-family: 'Noto Sans TC', sans-serif; background: var(--paper-warm); padding: 14px 18px; border-left: 3px solid var(--gold); margin-bottom: 18px; }
 
-  /* ── Post-event extra fields ── */
-  .post-fields { display: none; }
-  .post-fields.visible { display: block; }
+/* ── Sign-in sheet sidebar extras ── */
+.input-tabs { display: flex; gap: 0; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+.itab { flex: 1; padding: 6px; border: none; background: var(--paper-warm); color: var(--ink-muted); cursor: pointer; font-family: 'Noto Sans TC', sans-serif; font-size: 12px; font-weight: 500; transition: all 0.15s; }
+.itab:first-child { border-right: 1px solid var(--rule); }
+.itab.active { background: var(--navy); color: white; }
+.itab:not(.active):hover { background: var(--rule-light); }
 
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--ink);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 2px;
-    font-size: 13px;
-    font-family: 'Noto Sans TC', sans-serif;
-    letter-spacing: 0.05em;
-    transform: translateY(60px);
-    opacity: 0;
-    transition: all 0.25s;
-    z-index: 999;
-    border-left: 3px solid var(--gold-light);
-  }
-  .toast.show { transform: translateY(0); opacity: 1; }
+.person-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--ink-muted); }
+.add-btn {
+  width: 100%; padding: 8px;
+  background: var(--navy); color: white;
+  border: none; border-radius: 3px; cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12.5px; font-weight: 500;
+  transition: all 0.15s;
+}
+.add-btn:hover { background: var(--navy-light); }
 
-  @media (max-width: 900px) {
-    aside { width: 240px; }
-    .doc-inner { padding: 28px 24px; }
-  }
+.bulk-hint { font-size: 11px; color: #4a7c59; margin-top: 3px; min-height: 14px; }
+
+.person-list-hdr { display: flex; align-items: center; justify-content: space-between; margin: 10px 0 5px; }
+.person-list-hdr span { font-size: 11.5px; color: var(--ink-muted); }
+.clr-btn { background: none; border: 1px solid #e0a0a0; color: #cc4444; font-size: 11px; padding: 3px 8px; border-radius: 3px; cursor: pointer; font-family: 'Noto Sans TC', sans-serif; transition: all 0.15s; }
+.clr-btn:hover { background: #fde8e8; }
+
+.person-list { display: flex; flex-direction: column; gap: 5px; max-height: 220px; overflow-y: auto; margin-bottom: 12px; }
+.ptag {
+  display: flex; align-items: center; justify-content: space-between;
+  background: white; border: 1px solid var(--rule);
+  border-radius: 3px; padding: 6px 10px; font-size: 12px;
+  animation: fadeIn 0.18s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform: translateY(-3px); } to { opacity:1; transform: translateY(0); } }
+.ptag-info { display: flex; flex-direction: column; gap: 1px; }
+.ptag-name { font-weight: 500; color: var(--navy); font-size: 12.5px; }
+.ptag-unit { font-size: 11px; color: var(--ink-muted); }
+.ptag-rm { background: none; border: none; color: #cc4444; cursor: pointer; font-size: 15px; padding: 1px 5px; border-radius: 3px; transition: background 0.12s; }
+.ptag-rm:hover { background: #fde8e8; }
+.ptag.dup { border-color: #e0a0a0; background: #fff5f5; }
+.dup-badge { display: inline-block; background: #cc4444; color: white; font-size: 9px; padding: 1px 4px; border-radius: 2px; margin-left: 3px; vertical-align: middle; font-weight: 600; }
+
+.cat-checks { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.cat-lbl {
+  display: flex; align-items: center; gap: 4px;
+  background: white; border: 1px solid var(--rule);
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 11.5px; font-weight: 500; color: var(--navy);
+  cursor: pointer; transition: all 0.12s; user-select: none;
+}
+.cat-lbl:hover { border-color: var(--gold); background: var(--paper-warm); }
+.cat-lbl input[type=checkbox] { accent-color: var(--navy); width: 12px; height: 12px; cursor: pointer; }
+
+.export-btns { display: flex; flex-direction: column; gap: 6px; }
+.eb {
+  width: 100%; padding: 9px;
+  border: none; border-radius: 3px; cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12.5px; font-weight: 500;
+  transition: all 0.15s; display: flex; align-items: center; gap: 6px; justify-content: center;
+}
+.eb:hover { transform: translateY(-1px); }
+.eb-navy { background: var(--navy); color: white; }
+.eb-navy:hover { background: var(--navy-light); }
+.eb-gold { background: var(--gold); color: white; }
+.eb-gold:hover { background: var(--gold-light); }
+.eb-slate { background: #4a5568; color: white; }
+.eb-slate:hover { background: #2d3748; }
+.eb-green { background: #2d6a4f; color: white; }
+.eb-green:hover { background: #1b4332; }
+
+/* ── Sign-in sheet preview ── */
+.sheet-wrap {
+  background: white; border: 1px solid var(--rule-light);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+.sheet-hdr {
+  background: var(--navy); color: white;
+  padding: 20px 28px; text-align: center;
+}
+.sheet-title-txt {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 22px; font-weight: 700; letter-spacing: 4px; margin-bottom: 3px;
+}
+.sheet-subtitle-txt { font-size: 12px; color: var(--gold-light); letter-spacing: 2px; font-weight: 300; }
+.sheet-meta-bar {
+  background: var(--navy-light); display: flex; justify-content: center; gap: 40px;
+  padding: 12px 28px; border-bottom: 2px solid var(--gold-light); flex-wrap: wrap;
+}
+.sm-item { display: flex; align-items: center; gap: 7px; color: rgba(255,255,255,0.85); font-size: 14px; }
+.sm-lbl { color: var(--gold-light); font-size: 12px; letter-spacing: 1px; font-weight: 600; }
+.cat-pill { display: inline-block; background: white; color: black; border: 1.5px solid black; font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 20px; }
+.sheet-tbl-wrap { padding: 20px 28px; }
+.sheet-tbl { width: 100%; border-collapse: collapse; font-size: 16px; }
+.sheet-tbl thead tr { background: var(--navy); color: white; }
+.sheet-tbl thead th { padding: 7px 10px; text-align: center; font-family: 'Noto Serif TC', serif; font-weight: 600; letter-spacing: 1px; font-size: 15px; }
+.sheet-tbl tbody tr { border-bottom: 1px solid var(--rule-light); transition: background 0.1s; }
+.sheet-tbl tbody tr:hover { background: var(--paper); }
+.sheet-tbl tbody tr:nth-child(even) { background: #fafaf8; }
+.sheet-tbl td { padding: 7px 10px; vertical-align: middle; text-align: center; }
+.td-num { color: var(--ink-muted); font-size: 12px; width: 36px; }
+.sig-box { display: inline-block; width: 110px; height: 24px; border-bottom: 1px solid #aaa; background: transparent; }
+.sheet-empty { text-align: center; padding: 40px 20px; color: var(--ink-muted); font-size: 13px; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--ink); color: white;
+  padding: 9px 18px; border-radius: 2px;
+  font-size: 12.5px; font-family: 'Noto Sans TC', sans-serif; letter-spacing: 0.05em;
+  transform: translateY(50px); opacity: 0; transition: all 0.22s;
+  z-index: 999; border-left: 3px solid var(--gold-light);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+
+/* ── Print ── */
+@media print {
+  @page { margin: 14mm 12mm; }
+  a[href]:after { content: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: white; }
+  .app-header, .top-nav, .sidebar, .mode-bar, .toast { display: none !important; }
+  .app-body { display: block; }
+  .module { display: block !important; }
+  .module:not(#mod-signin) { display: none !important; }
+  .out-panels { padding: 0; }
+  .out-panel { display: block; }
+  .out-panel:not(#sp-preview) { display: none !important; }
+  .sheet-wrap { box-shadow: none; border: none; }
+  .sheet-hdr { background: white !important; color: black !important; padding: 10px 20px; border-bottom: 2px solid black; }
+  .sheet-title-txt { font-size: 18px !important; letter-spacing: 3px; color: black !important; }
+  .sheet-subtitle-txt { color: #444 !important; font-size: 10px !important; }
+  .sheet-meta-bar { background: white !important; padding: 8px 20px; border-bottom: 1px solid black; gap: 28px; }
+  .sm-lbl { color: black !important; font-weight: 700; }
+  .sm-item { color: black !important; font-size: 12px; }
+  .sheet-tbl-wrap { padding: 8px 20px; }
+  .sheet-tbl { font-size: 16px; }
+  .sheet-tbl thead { display: table-header-group; }
+  .sheet-tbl thead tr { background: #444 !important; }
+  .sheet-tbl thead th { color: white !important; }
+  .sheet-tbl tbody tr { border-bottom: 1px solid #ccc !important; background: white !important; }
+  .sheet-tbl tbody tr:nth-child(even) { background: white !important; }
+  .sheet-tbl td { background: white !important; }
+  .sig-box { width: 110px; height: 22px; }
+  #blankSheet { display: none; }
+  body.print-blank #blankSheet { display: block !important; }
+  body.print-blank .out-panels { display: none !important; }
+  #blankSheet .bh { background: white !important; color: black !important; text-align: center; padding: 10px 20px; border-bottom: 2px solid black; }
+  #blankSheet .bh-t { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 700; letter-spacing: 3px; }
+  #blankSheet .bh-s { font-size: 10px; color: #444; letter-spacing: 2px; margin-top: 3px; }
+  #blankSheet .bm { display: flex; gap: 28px; justify-content: center; padding: 8px 20px; border-bottom: 1px solid black; font-size: 13px; }
+  #blankSheet .bm-i { display: flex; gap: 6px; align-items: center; }
+  #blankSheet .bm-l { font-weight: 700; font-size: 12px; }
+  #blankSheet .bm-line { display: inline-block; width: 140px; border-bottom: 1px solid black; height: 18px; }
+  #blankSheet table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  #blankSheet thead tr { background: #444 !important; }
+  #blankSheet thead th { color: white !important; padding: 6px 10px; text-align: center; font-family: 'Noto Serif TC', serif; }
+  #blankSheet thead { display: table-header-group; }
+  #blankSheet tbody tr { border-bottom: 1px solid #ccc; background: white !important; }
+  #blankSheet td { padding: 6px 10px; text-align: center; background: white !important; }
+  #blankSheet .bf { text-align: center; font-size: 10px; color: #555; margin-top: 14px; padding-top: 6px; border-top: 1px solid #ccc; }
+  .print-footer-block { display: block !important; text-align: center; font-size: 10px; color: #555; margin-top: 14px; padding-top: 6px; border-top: 1px solid #ccc; }
+}
+.print-footer-block { display: none; }
+
+/* ── Footer ── */
+.app-footer {
+  background: var(--navy); color: rgba(255,255,255,0.4);
+  text-align: center; padding: 12px 20px;
+  font-size: 10.5px; letter-spacing: 0.5px; line-height: 1.8;
+  border-top: 2px solid var(--gold);
+  flex-shrink: 0;
+}
+.app-footer span { color: rgba(255,255,255,0.75); }
 </style>
 </head>
 <body>
 
-<header>
+<!-- ── Header ── -->
+<header class="app-header">
+  <div class="header-emblem">醫</div>
   <div class="header-brand">
-    <span class="org">National Taiwan University Hospital</span>
-    <span class="title">醫學研究部・演講文件產生器</span>
+    <span class="org">National Taiwan University Hospital · Department of Medical Research</span>
+    <span class="title">醫學研究部演講文件管理系統</span>
   </div>
-  <nav class="header-tabs">
-    <button class="tab-btn active" onclick="switchTab('announcement', this)">演講公告</button>
-    <button class="tab-btn" onclick="switchTab('postevent', this)">會後紀錄</button>
-  </nav>
 </header>
 
-<div class="main-wrap">
-  <!-- ── Sidebar ── -->
-  <aside>
-    <div class="sidebar-section">
-      <div class="sidebar-label">演講類型</div>
-      <div class="type-grid">
-        <button class="type-chip active" data-type="學術演講" onclick="setType(this)">學術演講</button>
-        <button class="type-chip" data-type="經驗分享" onclick="setType(this)">經驗分享</button>
-        <button class="type-chip" data-type="工作坊" onclick="setType(this)">工作坊</button>
-        <button class="type-chip" data-type="其他" onclick="setType(this)">其他</button>
-      </div>
-    </div>
+<!-- ── Top Nav ── -->
+<nav class="top-nav">
+  <button class="nav-btn active" onclick="switchModule('announcement', this)">
+    <span class="dot"></span>演講公告
+  </button>
+  <button class="nav-btn" onclick="switchModule('postevent', this)">
+    <span class="dot"></span>會後紀錄
+  </button>
+  <button class="nav-btn" onclick="switchModule('signin', this)">
+    <span class="dot"></span>簽到表
+  </button>
+</nav>
 
-    <div class="field-divider"></div>
+<!-- ── Body ── -->
+<div class="app-body">
 
-    <div class="sidebar-section">
-      <div class="sidebar-label">基本資訊</div>
+  <!-- ══ ANNOUNCEMENT SIDEBAR ══ -->
+  <aside class="sidebar" id="sb-announcement">
+    <div class="sidebar-inner">
 
-      <div class="field-group">
-        <label class="field-label">系列課程名稱（如有）</label>
-        <input type="text" id="f-series" placeholder="例：生成式AI工具輔助論文寫作系列課程">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">講題 <span class="field-required">*</span></label>
-        <input type="text" id="f-topic" placeholder="請輸入演講題目">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">講者姓名 <span class="field-required">*</span></label>
-        <input type="text" id="f-speaker" placeholder="例：李季青副教授">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">講者單位</label>
-        <input type="text" id="f-affiliation" placeholder="例：長庚大學資訊工程系">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">日期時間 <span class="field-required">*</span></label>
-        <input type="text" id="f-datetime" placeholder="例：115年1月29日 (四) 12:00-13:00">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">地點 <span class="field-required">*</span></label>
-        <input type="text" id="f-venue" placeholder="例：台大醫院西址第七講堂">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">主辦單位</label>
-        <input type="text" id="f-organizer" value="醫學研究部">
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">承辦人員</label>
-        <input type="text" id="f-contact" placeholder="例：醫學研究部 陳巧瑜管理師(分機263254)">
-      </div>
-    </div>
-
-    <!-- Announcement-only fields -->
-    <div id="ann-fields">
-      <div class="field-divider"></div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">公告專用</div>
-        <div class="field-group">
-          <label class="field-label">演講摘要</label>
-          <textarea id="f-abstract" rows="6" placeholder="請輸入演講摘要內容…"></textarea>
-        </div>
-        <div class="field-group">
-          <label class="field-label">報名網址</label>
-          <input type="url" id="f-regurl" placeholder="https://…">
+      <div class="sb-section">
+        <div class="sb-label">演講類型</div>
+        <div class="type-grid">
+          <button class="type-chip active" data-type="學術演講" onclick="setType(this)">學術演講</button>
+          <button class="type-chip" data-type="經驗分享" onclick="setType(this)">經驗分享</button>
+          <button class="type-chip" data-type="工作坊" onclick="setType(this)">工作坊</button>
+          <button class="type-chip" data-type="其他" onclick="setType(this)">其他</button>
         </div>
       </div>
-    </div>
 
-    <!-- Post-event-only fields -->
-    <div id="post-fields" class="post-fields">
-      <div class="field-divider"></div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">會後專用</div>
-        <div class="field-group">
-          <label class="field-label">主持人</label>
-          <input type="text" id="f-host" placeholder="例：楊鎧鍵教授">
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">基本資訊</div>
+        <div class="fg"><label>系列課程名稱（如有）</label><input type="text" id="a-series" placeholder="例：生成式AI工具輔助論文寫作系列課程"></div>
+        <div class="fg"><label>講題 <span class="req">*</span></label><input type="text" id="a-topic" placeholder="請輸入演講題目"></div>
+        <div class="fg"><label>講者姓名 <span class="req">*</span></label><input type="text" id="a-speaker" placeholder="例：李季青副教授"></div>
+        <div class="fg"><label>講者單位</label><input type="text" id="a-affil" placeholder="例：長庚大學資訊工程系"></div>
+
+        <div class="fg">
+          <label>日期 <span class="req">*</span></label>
+          <input type="date" id="a-date">
         </div>
-        <div class="field-group">
-          <label class="field-label">主持人職稱/單位</label>
-          <input type="text" id="f-host-role" placeholder="例：醫學研究部規劃訓練組組長">
+        <div class="fg">
+          <label>時間 <span class="req">*</span></label>
+          <div class="time-range">
+            <input type="time" id="a-time-start">
+            <span>–</span>
+            <input type="time" id="a-time-end">
+          </div>
         </div>
-        <div class="field-group">
-          <label class="field-label">課程錄影連結（限院內）</label>
-          <input type="url" id="f-video" placeholder="https://edu.ntuh.gov.tw/course/…">
-        </div>
-        <div class="field-group">
-          <label class="field-label">院內課號</label>
-          <input type="text" id="f-courseno" placeholder="例：200332">
-        </div>
-        <div class="field-group">
-          <label class="field-label">工作人員</label>
-          <input type="text" id="f-staff" placeholder="例：陳巧瑜、高俐婷、范曉寧">
-        </div>
-        <div class="field-group">
-          <label class="field-label">補充說明／本部摘要</label>
-          <textarea id="f-summary" rows="4" placeholder="說明課程重點與部門規劃…"></textarea>
-        </div>
+
+        <div class="fg"><label>地點 <span class="req">*</span></label><input type="text" id="a-venue" placeholder="例：台大醫院西址第七講堂"></div>
+        <div class="fg"><label>主辦單位</label><input type="text" id="a-org" value="醫學研究部"></div>
+        <div class="fg"><label>承辦人員</label><input type="text" id="a-contact" placeholder="例：醫學研究部 陳巧瑜管理師(分機263254)"></div>
       </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">公告專用</div>
+        <div class="fg"><label>演講摘要</label><textarea id="a-abstract" rows="6" placeholder="請輸入演講摘要…"></textarea></div>
+        <div class="fg"><label>報名網址</label><input type="url" id="a-regurl" placeholder="https://…"></div>
+      </div>
+
+      <button class="gen-btn" onclick="generateAnn()">產生公告文件</button>
     </div>
   </aside>
 
-  <!-- ── Main Content ── -->
-  <div class="content-area">
-    <div class="mode-bar">
-      <button class="mode-btn active" onclick="setMode('preview', this)">預覽</button>
-      <div class="mode-sep"></div>
-      <button class="mode-btn" onclick="setMode('text', this)">純文字</button>
-      <button class="gen-btn" onclick="generate()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M7 1v12M1 7h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        產生文件
-      </button>
-    </div>
+  <!-- ══ POST-EVENT SIDEBAR ══ -->
+  <aside class="sidebar" id="sb-postevent" style="display:none">
+    <div class="sidebar-inner">
 
-    <div class="panels">
-      <!-- Preview Panel -->
-      <div class="panel visible" id="panel-preview">
-        <div class="panel-header">
-          <span class="panel-title" id="panel-label">公告預覽</span>
-          <button class="copy-btn" id="copy-preview-btn" onclick="copyDoc()">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
-            複製
-          </button>
-        </div>
-
-        <!-- Empty state -->
-        <div class="empty-state" id="empty-state">
-          <svg class="empty-icon" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="8" y="4" width="36" height="48" rx="2" stroke="currentColor" stroke-width="2"/>
-            <line x1="16" y1="18" x2="36" y2="18" stroke="currentColor" stroke-width="1.5"/>
-            <line x1="16" y1="26" x2="36" y2="26" stroke="currentColor" stroke-width="1.5"/>
-            <line x1="16" y1="34" x2="28" y2="34" stroke="currentColor" stroke-width="1.5"/>
-            <circle cx="46" cy="46" r="10" fill="white" stroke="currentColor" stroke-width="2"/>
-            <path d="M43 46h6M46 43v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <p>填寫左側表單後<br>點擊「產生文件」</p>
-        </div>
-
-        <!-- Document output -->
-        <div class="doc-preview" id="doc-preview" style="display:none">
-          <div class="doc-inner" id="doc-inner"></div>
+      <div class="sb-section">
+        <div class="sb-label">演講類型</div>
+        <div class="type-grid">
+          <button class="type-chip active" data-type="學術演講" onclick="setType(this)">學術演講</button>
+          <button class="type-chip" data-type="經驗分享" onclick="setType(this)">經驗分享</button>
+          <button class="type-chip" data-type="工作坊" onclick="setType(this)">工作坊</button>
+          <button class="type-chip" data-type="其他" onclick="setType(this)">其他</button>
         </div>
       </div>
 
-      <!-- Text Panel -->
-      <div class="panel" id="panel-text">
-        <div class="panel-header">
-          <span class="panel-title">純文字輸出</span>
-          <button class="copy-btn" id="copy-text-btn" onclick="copyText()">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
-            複製
-          </button>
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">基本資訊</div>
+        <div class="fg"><label>系列課程名稱（如有）</label><input type="text" id="p-series" placeholder="例：生成式AI工具輔助論文寫作系列課程"></div>
+        <div class="fg"><label>講題 <span class="req">*</span></label><input type="text" id="p-topic" placeholder="請輸入演講題目"></div>
+        <div class="fg"><label>講者姓名 <span class="req">*</span></label><input type="text" id="p-speaker" placeholder="例：李季青副教授"></div>
+        <div class="fg"><label>講者單位</label><input type="text" id="p-affil" placeholder="例：長庚大學資訊工程系"></div>
+
+        <div class="fg">
+          <label>日期 <span class="req">*</span></label>
+          <input type="date" id="p-date">
         </div>
-        <div class="text-output" id="text-output" contenteditable="true"></div>
+        <div class="fg">
+          <label>時間 <span class="req">*</span></label>
+          <div class="time-range">
+            <input type="time" id="p-time-start">
+            <span>–</span>
+            <input type="time" id="p-time-end">
+          </div>
+        </div>
+
+        <div class="fg"><label>地點 <span class="req">*</span></label><input type="text" id="p-venue" placeholder="例：台大醫院西址第七講堂"></div>
+        <div class="fg"><label>主辦單位</label><input type="text" id="p-org" value="醫學研究部"></div>
+        <div class="fg"><label>承辦人員</label><input type="text" id="p-contact" placeholder="例：醫學研究部 陳巧瑜管理師(分機263254)"></div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">會後專用</div>
+        <div class="fg"><label>主持人</label><input type="text" id="p-host" placeholder="例：楊鎧鍵教授"></div>
+        <div class="fg"><label>主持人職稱/單位</label><input type="text" id="p-host-role" placeholder="例：醫學研究部規劃訓練組組長"></div>
+        <div class="fg"><label>課程錄影連結（限院內）</label><input type="url" id="p-video" placeholder="https://edu.ntuh.gov.tw/course/…"></div>
+        <div class="fg"><label>院內課號</label><input type="text" id="p-courseno" placeholder="例：200332"></div>
+        <div class="fg"><label>工作人員</label><input type="text" id="p-staff" placeholder="例：陳巧瑜、高俐婷、范曉寧"></div>
+        <div class="fg"><label>補充說明／本部摘要</label><textarea id="p-summary" rows="4" placeholder="說明課程重點與部門規劃（可留空，系統自動生成）…"></textarea></div>
+      </div>
+
+      <button class="gen-btn" onclick="generatePost()">產生會後紀錄</button>
+    </div>
+  </aside>
+
+  <!-- ══ SIGN-IN SIDEBAR ══ -->
+  <aside class="sidebar" id="sb-signin" style="display:none">
+    <div class="sidebar-inner">
+
+      <div class="sb-section">
+        <div class="sb-label">活動資訊</div>
+        <div class="fg"><label>簽到表標題</label><input type="text" id="s-title" value="臺大醫院醫學研究部學術演講簽到表"></div>
+        <div class="fg"><label>日期 <span class="req">*</span></label><input type="date" id="s-date"></div>
+        <div class="fg"><label>地點</label><input type="text" id="s-venue" placeholder="例：台大醫院西址第七講堂"></div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">出席人員</div>
+        <div class="input-tabs">
+          <button class="itab active" onclick="switchItab('single')">單筆輸入</button>
+          <button class="itab" onclick="switchItab('bulk')">批次貼上</button>
+        </div>
+
+        <div id="itab-single">
+          <div class="person-inputs">
+            <div class="fg" style="margin-bottom:0"><label>姓名</label><input type="text" id="s-name" placeholder="王小明"></div>
+            <div class="fg" style="margin-bottom:0"><label>單位</label><input type="text" id="s-unit" placeholder="內科部"></div>
+          </div>
+          <button class="add-btn" onclick="addPerson()" style="margin-top:8px">＋ 新增人員</button>
+        </div>
+
+        <div id="itab-bulk" style="display:none">
+          <label style="font-size:11px;color:var(--ink-muted);display:block;margin-bottom:5px">每行一筆：<code style="background:var(--paper-warm);padding:1px 4px;border-radius:2px;font-size:10px">姓名，單位</code></label>
+          <textarea id="s-bulk" rows="6" placeholder="王小明，內科部&#10;李大華，外科部&#10;陳美玲&#9;急診醫學部"></textarea>
+          <div class="bulk-hint" id="bulk-hint"></div>
+          <button class="add-btn" onclick="addBulk()" style="margin-top:6px">⬆ 批次匯入</button>
+        </div>
+
+        <div class="person-list-hdr" id="pl-hdr" style="display:none">
+          <span id="pl-count">共 0 位</span>
+          <button class="clr-btn" onclick="clearAll()">🗑 全部清除</button>
+        </div>
+        <div class="person-list" id="person-list"></div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">人員類別</div>
+        <div class="cat-checks">
+          <label class="cat-lbl"><input type="checkbox" value="院內" onchange="renderSheet()"> 院內</label>
+          <label class="cat-lbl"><input type="checkbox" value="院外" onchange="renderSheet()"> 院外</label>
+          <label class="cat-lbl"><input type="checkbox" value="醫學院" onchange="renderSheet()"> 醫學院</label>
+          <label class="cat-lbl"><input type="checkbox" value="校總區" onchange="renderSheet()"> 校總區</label>
+          <label class="cat-lbl"><input type="checkbox" value="校外人士" onchange="renderSheet()"> 校外人士</label>
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-label">匯出 &amp; 列印</div>
+        <div class="export-btns">
+          <button class="eb eb-gold" onclick="exportExcel()">⬇ 匯出 Excel (.xlsx)</button>
+          <button class="eb eb-navy" onclick="exportCSV()">⬇ 匯出 CSV</button>
+          <button class="eb eb-slate" onclick="printSheet()">🖨 列印（預填名單）</button>
+          <button class="eb eb-green" onclick="printBlank()">📋 列印空白簽到表</button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ══ CONTENT AREA ══ -->
+  <div class="content">
+
+    <!-- Announcement module -->
+    <div class="module active" id="mod-announcement">
+      <div class="mode-bar">
+        <button class="mode-btn active" onclick="setMode('ann','preview',this)">預覽</button>
+        <div class="mode-sep"></div>
+        <button class="mode-btn" onclick="setMode('ann','text',this)">純文字</button>
+        <button class="action-btn copy" id="ann-copy-btn" onclick="copyDoc('ann')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>複製
+        </button>
+      </div>
+      <div class="out-panels">
+        <div class="out-panel visible" id="ann-preview">
+          <div class="empty" id="ann-empty">
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="4" width="32" height="44" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="16" x2="34" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="23" x2="34" y2="23" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="30" x2="26" y2="30" stroke="currentColor" stroke-width="1.2"/><circle cx="44" cy="44" r="9" fill="white" stroke="currentColor" stroke-width="1.5"/><path d="M41 44h6M44 41v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <p>填寫左側表單後<br>點擊「產生公告文件」</p>
+          </div>
+          <div class="doc-card" id="ann-doc" style="display:none">
+            <div class="doc-body" id="ann-doc-body"></div>
+          </div>
+        </div>
+        <div class="out-panel" id="ann-text">
+          <div class="text-out" id="ann-text-out" contenteditable="true"></div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="toast" id="toast">已複製到剪貼簿</div>
+    <!-- Post-event module -->
+    <div class="module" id="mod-postevent">
+      <div class="mode-bar">
+        <button class="mode-btn active" onclick="setMode('post','preview',this)">預覽</button>
+        <div class="mode-sep"></div>
+        <button class="mode-btn" onclick="setMode('post','text',this)">純文字</button>
+        <button class="action-btn copy" id="post-copy-btn" onclick="copyDoc('post')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>複製
+        </button>
+      </div>
+      <div class="out-panels">
+        <div class="out-panel visible" id="post-preview">
+          <div class="empty" id="post-empty">
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="4" width="32" height="44" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="16" x2="34" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="23" x2="34" y2="23" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="30" x2="26" y2="30" stroke="currentColor" stroke-width="1.2"/><circle cx="44" cy="44" r="9" fill="white" stroke="currentColor" stroke-width="1.5"/><path d="M41 44h6M44 41v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <p>填寫左側表單後<br>點擊「產生會後紀錄」</p>
+          </div>
+          <div class="doc-card" id="post-doc" style="display:none">
+            <div class="doc-body" id="post-doc-body"></div>
+          </div>
+        </div>
+        <div class="out-panel" id="post-text">
+          <div class="text-out" id="post-text-out" contenteditable="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign-in module -->
+    <div class="module" id="mod-signin">
+      <div class="mode-bar">
+        <span style="font-family:'Noto Serif TC',serif;font-size:12.5px;letter-spacing:0.12em;color:var(--ink-muted)">即時預覽</span>
+        <span style="margin-left:8px;background:var(--navy);color:var(--gold-light);font-size:9px;font-weight:600;letter-spacing:2px;padding:3px 10px;border-radius:20px">LIVE</span>
+      </div>
+      <div class="out-panels">
+        <div class="out-panel visible" id="sp-preview">
+          <div id="sheet-output"></div>
+          <div class="print-footer-block">© 2026 台大醫院 醫學研究部 All rights reserved．系統建置：醫學研究部陳巧瑜管理師</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end app-body -->
+
+<!-- Hidden blank print sheet -->
+<div id="blankSheet" style="display:none"></div>
+
+<footer class="app-footer">
+  <div>© 2026 台大醫院 醫學研究部 All rights reserved.</div>
+  <div>系統建置：<span>醫學研究部 陳巧瑜管理師</span></div>
+</footer>
+
+<div class="toast" id="toast"></div>
 
 <script>
-// ── State ──
-let currentTab = 'announcement'; // 'announcement' | 'postevent'
-let currentMode = 'preview';
+/* ══════════════════════════════════
+   STATE
+══════════════════════════════════ */
 let currentType = '學術演講';
-let generated = false;
+let persons = [];
+let annText = '';
+let postText = '';
 
-// ── Tab switching ──
-function switchTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+/* ══════════════════════════════════
+   MODULE SWITCHING
+══════════════════════════════════ */
+function switchModule(mod, el) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 
-  const annFields = document.getElementById('ann-fields');
-  const postFields = document.getElementById('post-fields');
-  const panelLabel = document.getElementById('panel-label');
+  ['announcement','postevent','signin'].forEach(m => {
+    document.getElementById('mod-' + m).classList.toggle('active', m === mod);
+    const sb = document.getElementById('sb-' + m);
+    if (sb) sb.style.display = m === mod ? '' : 'none';
+  });
 
-  if (tab === 'announcement') {
-    annFields.style.display = '';
-    postFields.classList.remove('visible');
-    panelLabel.textContent = '公告預覽';
-  } else {
-    annFields.style.display = 'none';
-    postFields.classList.add('visible');
-    panelLabel.textContent = '會後紀錄預覽';
-  }
-  resetOutput();
+  if (mod === 'signin') renderSheet();
 }
 
+/* ══════════════════════════════════
+   TYPE CHIP
+══════════════════════════════════ */
 function setType(el) {
-  document.querySelectorAll('.type-chip').forEach(b => b.classList.remove('active'));
+  el.closest('.type-grid').querySelectorAll('.type-chip').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   currentType = el.dataset.type;
 }
 
-function setMode(mode, el) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+function typeLabel() {
+  const m = {'學術演講':'學術演講','經驗分享':'經驗分享','工作坊':'工作坊','其他':'講座'};
+  return m[currentType] || currentType;
+}
+
+/* ══════════════════════════════════
+   MODE (preview / text)
+══════════════════════════════════ */
+function setMode(mod, mode, el) {
+  el.closest('.mode-bar').querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('panel-preview').classList.toggle('visible', mode === 'preview');
-  document.getElementById('panel-text').classList.toggle('visible', mode === 'text');
+  const prefix = mod === 'ann' ? 'ann' : 'post';
+  document.getElementById(prefix + '-preview').classList.toggle('visible', mode === 'preview');
+  document.getElementById(prefix + '-text').classList.toggle('visible', mode === 'text');
 }
 
-function resetOutput() {
-  generated = false;
-  document.getElementById('empty-state').style.display = '';
-  document.getElementById('doc-preview').style.display = 'none';
-  document.getElementById('doc-inner').innerHTML = '';
-  document.getElementById('text-output').textContent = '';
+/* ══════════════════════════════════
+   DATE / TIME FORMATTING
+══════════════════════════════════ */
+function formatROCDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  const roc = d.getFullYear() - 1911;
+  const wd = ['日','一','二','三','四','五','六'][d.getDay()];
+  return `${roc}年${d.getMonth()+1}月${d.getDate()}日 (${wd})`;
 }
 
-// ── Helpers ──
+function formatTime(t) {
+  if (!t) return '';
+  return t.slice(0,5);
+}
+
+function buildDatetime(dateId, startId, endId) {
+  const d = document.getElementById(dateId).value;
+  const s = document.getElementById(startId).value;
+  const e = document.getElementById(endId).value;
+  let str = '';
+  if (d) str += formatROCDate(d);
+  if (s) str += ' ' + formatTime(s);
+  if (s && e) str += '-' + formatTime(e);
+  return str.trim();
+}
+
 function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
 
-function typeLabel() {
-  const map = { '學術演講': '學術演講', '經驗分享': '經驗分享', '工作坊': '工作坊', '其他': '講座' };
-  return map[currentType] || currentType;
-}
-
-// ── Generate ──
-function generate() {
-  const topic = v('f-topic');
-  const speaker = v('f-speaker');
-  const datetime = v('f-datetime');
-  const venue = v('f-venue');
+/* ══════════════════════════════════
+   ANNOUNCEMENT GENERATE
+══════════════════════════════════ */
+function generateAnn() {
+  const topic = v('a-topic'), speaker = v('a-speaker');
+  const datetime = buildDatetime('a-date','a-time-start','a-time-end');
+  const venue = v('a-venue');
 
   if (!topic || !speaker || !datetime || !venue) {
-    showToast('請填寫必填欄位（講題、講者、時間、地點）');
-    return;
+    showToast('請填寫必填欄位（講題、講者、時間、地點）'); return;
   }
 
-  if (currentTab === 'announcement') generateAnnouncement();
-  else generatePostEvent();
-
-  generated = true;
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('doc-preview').style.display = '';
-}
-
-function generateAnnouncement() {
-  const series = v('f-series');
-  const topic = v('f-topic');
-  const speaker = v('f-speaker');
-  const affiliation = v('f-affiliation');
-  const datetime = v('f-datetime');
-  const venue = v('f-venue');
-  const organizer = v('f-organizer') || '醫學研究部';
-  const contact = v('f-contact');
-  const abstract = v('f-abstract');
-  const regUrl = v('f-regurl');
-
-  const speakerFull = affiliation ? `${affiliation} ${speaker}` : speaker;
+  const series = v('a-series'), affil = v('a-affil');
+  const org = v('a-org') || '醫學研究部';
+  const contact = v('a-contact'), abstract = v('a-abstract'), regurl = v('a-regurl');
+  const spk = affil ? `${affil} ${speaker}` : speaker;
 
   // Preview HTML
-  let html = `<div class="ann-header">`;
+  let html = '<div class="ann-hd">';
   if (series) html += `<div class="ann-series">台大醫院醫學研究部＿${series}</div>`;
-  html += `<div class="ann-type-badge">${typeLabel()}</div>`;
+  html += `<div class="ann-badge">${typeLabel()}</div>`;
   html += `<div class="ann-title">${topic}</div>`;
-  html += `<div class="ann-speaker">${speakerFull}</div>`;
-  html += `</div>`;
+  html += `<div class="ann-speaker">${spk}</div></div>`;
 
   if (abstract) {
-    html += `<div class="ann-abstract">
-      <div class="ann-abstract-label">演講摘要</div>
-      ${abstract}
-    </div>`;
+    html += `<div class="ann-abstract"><div class="ann-abstract-lbl">演講摘要</div>${abstract}</div>`;
   }
 
-  html += `<div class="ann-meta">`;
-  html += `<span class="meta-key">時間</span><span class="meta-val">${datetime}</span>`;
-  html += `<span class="meta-key">地點</span><span class="meta-val">${venue}</span>`;
-  if (regUrl) html += `<span class="meta-key">報名網址</span><span class="meta-val"><a href="${regUrl}" target="_blank">${regUrl}</a></span>`;
-  html += `<span class="meta-key">主辦單位</span><span class="meta-val">${organizer}</span>`;
-  if (contact) html += `<span class="meta-key">承辦人員</span><span class="meta-val">${contact}</span>`;
-  html += `</div>`;
+  html += '<div class="ann-meta">';
+  html += `<span class="meta-k">時間</span><span class="meta-v">${datetime}</span>`;
+  html += `<span class="meta-k">地點</span><span class="meta-v">${venue}</span>`;
+  if (regurl) html += `<span class="meta-k">報名網址</span><span class="meta-v"><a href="${regurl}" target="_blank">${regurl}</a></span>`;
+  html += `<span class="meta-k">主辦單位</span><span class="meta-v">${org}</span>`;
+  if (contact) html += `<span class="meta-k">承辦人員</span><span class="meta-v">${contact}</span>`;
+  html += '</div>';
 
-  document.getElementById('doc-inner').innerHTML = html;
+  document.getElementById('ann-doc-body').innerHTML = html;
+  document.getElementById('ann-doc').style.display = '';
+  document.getElementById('ann-empty').style.display = 'none';
 
   // Plain text
   let txt = '';
   if (series) txt += `【台大醫院醫學研究部_${series}】\n\n`;
-  txt += `講題：${topic}\n`;
-  txt += `講者：${speakerFull}\n`;
+  txt += `講題：${topic}\n講者：${spk}\n`;
   if (abstract) txt += `\n演講摘要：\n${abstract}\n`;
-  txt += `\n時間：${datetime}\n`;
-  txt += `地點：${venue}\n`;
-  if (regUrl) txt += `報名網址：${regUrl}\n`;
-  txt += `主辦單位：${organizer}\n`;
+  txt += `\n時間：${datetime}\n地點：${venue}\n`;
+  if (regurl) txt += `報名網址：${regurl}\n`;
+  txt += `主辦單位：${org}\n`;
   if (contact) txt += `承辦人員：${contact}\n`;
-
-  document.getElementById('text-output').textContent = txt.trim();
+  annText = txt.trim();
+  document.getElementById('ann-text-out').textContent = annText;
 }
 
-function generatePostEvent() {
-  const series = v('f-series');
-  const topic = v('f-topic');
-  const speaker = v('f-speaker');
-  const affiliation = v('f-affiliation');
-  const datetime = v('f-datetime');
-  const venue = v('f-venue');
-  const organizer = v('f-organizer') || '醫學研究部';
-  const contact = v('f-contact');
-  const host = v('f-host');
-  const hostRole = v('f-host-role');
-  const video = v('f-video');
-  const courseno = v('f-courseno');
-  const staff = v('f-staff');
-  const summary = v('f-summary');
+/* ══════════════════════════════════
+   POST-EVENT GENERATE
+══════════════════════════════════ */
+function generatePost() {
+  const topic = v('p-topic'), speaker = v('p-speaker');
+  const datetime = buildDatetime('p-date','p-time-start','p-time-end');
+  const venue = v('p-venue');
 
-  const speakerFull = affiliation ? `${affiliation} ${speaker}` : speaker;
+  if (!topic || !speaker || !datetime || !venue) {
+    showToast('請填寫必填欄位（講題、講者、時間、地點）'); return;
+  }
+
+  const series = v('p-series'), affil = v('p-affil');
+  const org = v('p-org') || '醫學研究部';
+  const contact = v('p-contact');
+  const host = v('p-host'), hostRole = v('p-host-role');
+  const video = v('p-video'), courseno = v('p-courseno');
+  const staff = v('p-staff'), summary = v('p-summary');
+  const spk = affil ? `${affil} ${speaker}` : speaker;
   const hostFull = hostRole && host ? `${hostRole}${host}` : host;
 
-  // Narrative paragraph
-  let narrative = '';
-  if (summary) {
-    narrative = summary;
-  } else {
-    narrative = `${organizer}邀請到${speakerFull}`;
+  let narrative = summary;
+  if (!narrative) {
+    narrative = `${org}邀請到${spk}`;
     if (series) narrative += `，前來進行「${series}」課程`;
     narrative += `，本次${typeLabel()}提供同仁更多元的學習方向。`;
     if (hostFull) narrative += `本次課程由${hostFull}主持。`;
@@ -870,86 +946,323 @@ function generatePostEvent() {
     narrative += `本部也將持續辦理相關講座，敬請持續關注本部粉絲團。`;
   }
 
-  let html = `<div class="post-header">`;
-  html += `<div class="post-type-label">[${typeLabel()}]${series ? '　' + series : ''}</div>`;
+  let html = `<div class="post-lbl">[${typeLabel()}]${series ? '　' + series : ''}</div>`;
   html += `<div class="post-title">${topic}</div>`;
-  html += `</div>`;
-
   html += `<div class="post-narrative">${narrative}</div>`;
+  html += '<div class="ann-meta">';
+  html += `<span class="meta-k">講題</span><span class="meta-v">${topic}</span>`;
+  html += `<span class="meta-k">講者</span><span class="meta-v">${spk}</span>`;
+  html += `<span class="meta-k">時間</span><span class="meta-v">${datetime}</span>`;
+  html += `<span class="meta-k">地點</span><span class="meta-v">${venue}</span>`;
+  html += `<span class="meta-k">主辦單位</span><span class="meta-v">${org}</span>`;
+  if (video) html += `<span class="meta-k">講座錄影</span><span class="meta-v"><a href="${video}" target="_blank">${video}</a>（限院內）</span>`;
+  if (contact) html += `<span class="meta-k">承辦人員</span><span class="meta-v">${contact}</span>`;
+  if (staff) html += `<span class="meta-k">工作人員</span><span class="meta-v">${staff}</span>`;
+  html += '</div>';
 
-  html += `<div class="ann-meta">`;
-  html += `<span class="meta-key">講題</span><span class="meta-val">${topic}</span>`;
-  html += `<span class="meta-key">講者</span><span class="meta-val">${speakerFull}</span>`;
-  html += `<span class="meta-key">時間</span><span class="meta-val">${datetime}</span>`;
-  html += `<span class="meta-key">地點</span><span class="meta-val">${venue}</span>`;
-  html += `<span class="meta-key">主辦單位</span><span class="meta-val">${organizer}</span>`;
-  if (video) html += `<span class="meta-key">講座錄影</span><span class="meta-val"><a href="${video}" target="_blank">${video}</a>（限院內）</span>`;
-  if (contact) html += `<span class="meta-key">承辦人員</span><span class="meta-val">${contact}</span>`;
-  if (staff) html += `<span class="meta-key">工作人員</span><span class="meta-val">${staff}</span>`;
-  html += `</div>`;
+  document.getElementById('post-doc-body').innerHTML = html;
+  document.getElementById('post-doc').style.display = '';
+  document.getElementById('post-empty').style.display = 'none';
 
-  document.getElementById('doc-inner').innerHTML = html;
-
-  // Plain text
-  let txt = `[${typeLabel()}] ${series || topic}\n\n`;
-  txt += narrative + '\n\n';
-  txt += `講題：${topic}\n`;
-  txt += `講者：${speakerFull}\n`;
-  txt += `時間：${datetime}\n`;
-  txt += `地點：${venue}\n`;
-  txt += `主辦單位：${organizer}\n`;
+  let txt = `[${typeLabel()}] ${series || topic}\n\n${narrative}\n\n`;
+  txt += `講題：${topic}\n講者：${spk}\n時間：${datetime}\n地點：${venue}\n主辦單位：${org}\n`;
   if (video) txt += `講座錄影(限院內)：${video}\n`;
   if (contact) txt += `承辦人員：${contact}\n`;
   if (staff) txt += `工作人員：${staff}\n`;
-
-  document.getElementById('text-output').textContent = txt.trim();
+  postText = txt.trim();
+  document.getElementById('post-text-out').textContent = postText;
 }
 
-// ── Copy ──
-function copyDoc() {
-  const text = document.getElementById('text-output').textContent;
-  if (!text) { showToast('請先產生文件'); return; }
-  navigator.clipboard.writeText(text).then(() => showToast('已複製純文字內容'));
-  const btn = document.getElementById('copy-preview-btn');
-  btn.classList.add('copied');
-  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> 已複製`;
-  setTimeout(() => {
-    btn.classList.remove('copied');
-    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg> 複製`;
-  }, 2000);
+/* ══════════════════════════════════
+   COPY
+══════════════════════════════════ */
+function copyDoc(mod) {
+  const txt = mod === 'ann' ? annText : postText;
+  if (!txt) { showToast('請先產生文件'); return; }
+  navigator.clipboard.writeText(txt).then(() => {
+    showToast('已複製到剪貼簿');
+    const btn = document.getElementById(mod + '-copy-btn');
+    btn.classList.add('done');
+    btn.textContent = '✓ 已複製';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>複製`;
+    }, 2200);
+  });
 }
 
-function copyText() {
-  const text = document.getElementById('text-output').textContent;
-  if (!text) { showToast('請先產生文件'); return; }
-  navigator.clipboard.writeText(text).then(() => showToast('已複製到剪貼簿'));
+/* ══════════════════════════════════
+   SIGN-IN: PERSON MANAGEMENT
+══════════════════════════════════ */
+function switchItab(mode) {
+  document.getElementById('itab-single').style.display = mode === 'single' ? '' : 'none';
+  document.getElementById('itab-bulk').style.display = mode === 'bulk' ? '' : 'none';
+  document.querySelectorAll('.itab').forEach((b,i) =>
+    b.classList.toggle('active', (i===0 && mode==='single') || (i===1 && mode==='bulk')));
 }
 
+// listen on sign-in fields
+['s-title','s-date','s-venue'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderSheet);
+});
+document.getElementById('s-bulk').addEventListener('input', () => {
+  const txt = document.getElementById('s-bulk').value;
+  const { results, errors } = parseBulk(txt);
+  const hint = document.getElementById('bulk-hint');
+  if (!txt.trim()) { hint.textContent=''; return; }
+  hint.textContent = `解析到 ${results.length} 筆有效資料${errors.length ? `，${errors.length} 行格式有誤`:''}`;
+  hint.style.color = errors.length ? '#cc7700' : '#4a7c59';
+});
+
+['s-name','s-unit'].forEach(id =>
+  document.getElementById(id).addEventListener('keydown', e => { if(e.key==='Enter') addPerson(); }));
+
+function isDup(name) { return persons.some(p => p.name === name); }
+
+function addPerson() {
+  const name = document.getElementById('s-name').value.trim();
+  const unit = document.getElementById('s-unit').value.trim();
+  if (!name || !unit) { showToast('請填寫姓名和單位'); return; }
+  if (isDup(name)) {
+    showToast(`「${name}」已在名單中`);
+    document.getElementById('s-name').value = '';
+    document.getElementById('s-name').focus(); return;
+  }
+  persons.push({ id: Date.now()+Math.random(), name, unit });
+  document.getElementById('s-name').value = '';
+  document.getElementById('s-name').focus();
+  renderPersonList(); renderSheet();
+}
+
+function parseBulk(text) {
+  const lines = text.split('\n').map(l=>l.trim()).filter(l=>l);
+  const results=[], errors=[];
+  lines.forEach((line,i) => {
+    const parts = line.split(/[,，\t]+/).map(s=>s.trim()).filter(s=>s);
+    if (parts.length >= 2) results.push({ id:Date.now()+Math.random()+i, name:parts[0], unit:parts[1] });
+    else errors.push(`第${i+1}行：「${line}」`);
+  });
+  return { results, errors };
+}
+
+function addBulk() {
+  const text = document.getElementById('s-bulk').value;
+  const { results, errors } = parseBulk(text);
+  if (!results.length) { showToast('未解析到有效資料'); return; }
+  const dupes=[], unique=[];
+  results.forEach(r => {
+    if (isDup(r.name) || unique.some(u=>u.name===r.name)) dupes.push(r.name);
+    else unique.push(r);
+  });
+  persons.push(...unique);
+  document.getElementById('s-bulk').value = '';
+  document.getElementById('bulk-hint').textContent = '';
+  renderPersonList(); renderSheet();
+  let msg = `已匯入 ${unique.length} 筆`;
+  if (dupes.length) msg += `\n重複略過：${dupes.join('、')}`;
+  if (errors.length) msg += `\n格式有誤略過：${errors.join(', ')}`;
+  if (dupes.length||errors.length) alert(msg);
+}
+
+function removePerson(id) { persons=persons.filter(p=>p.id!==id); renderPersonList(); renderSheet(); }
+function clearAll() {
+  if (!confirm(`確定清除全部 ${persons.length} 位？`)) return;
+  persons=[]; renderPersonList(); renderSheet();
+}
+
+function sortedPersons() {
+  return [...persons].sort((a,b) => {
+    const uc = a.unit.localeCompare(b.unit,'zh-TW');
+    return uc!==0 ? uc : a.name.localeCompare(b.name,'zh-TW');
+  });
+}
+
+function renderPersonList() {
+  const list = document.getElementById('person-list');
+  const hdr = document.getElementById('pl-hdr');
+  if (!persons.length) { list.innerHTML=''; hdr.style.display='none'; return; }
+  hdr.style.display='flex';
+  document.getElementById('pl-count').textContent = `共 ${persons.length} 位`;
+  const nameCounts={};
+  persons.forEach(p => { nameCounts[p.name]=(nameCounts[p.name]||0)+1; });
+  list.innerHTML = persons.map(p => `
+    <div class="ptag${nameCounts[p.name]>1?' dup':''}">
+      <div class="ptag-info">
+        <span class="ptag-name">${p.name}${nameCounts[p.name]>1?'<span class="dup-badge">重複</span>':''}</span>
+        <span class="ptag-unit">${p.unit}</span>
+      </div>
+      <button class="ptag-rm" onclick="removePerson(${p.id})">✕</button>
+    </div>`).join('');
+}
+
+/* ══════════════════════════════════
+   SIGN-IN: RENDER PREVIEW
+══════════════════════════════════ */
+function getActiveCats() {
+  return [...document.querySelectorAll('.cat-checks input:checked')].map(cb=>cb.value);
+}
+
+function formatSheetDate(val) {
+  if (!val) return '（未填寫）';
+  const d = new Date(val+'T00:00:00');
+  return `${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日`;
+}
+
+function renderSheet() {
+  const title = document.getElementById('s-title').value || '臺大醫院醫學研究部學術演講簽到表';
+  const dateVal = document.getElementById('s-date').value;
+  const location = document.getElementById('s-venue').value || '（未填寫）';
+  const dateStr = formatSheetDate(dateVal);
+  const sorted = sortedPersons();
+  const cats = getActiveCats();
+
+  let rows = '';
+  if (!persons.length) {
+    rows = `<tr><td colspan="4" class="sheet-empty">尚未新增出席人員</td></tr>`;
+  } else {
+    sorted.forEach((p,i) => {
+      rows += `<tr>
+        <td class="td-num">${i+1}</td>
+        <td>${p.name}</td><td>${p.unit}</td>
+        <td><div class="sig-box"></div></td>
+      </tr>`;
+    });
+  }
+
+  const catHTML = cats.length ? `<div class="sm-item"><span class="sm-lbl">類別</span><span>${cats.map(c=>`<span class="cat-pill">${c}</span>`).join(' ')}</span></div>` : '';
+
+  document.getElementById('sheet-output').innerHTML = `
+    <div class="sheet-wrap">
+      <div class="sheet-hdr">
+        <div class="sheet-title-txt">${title}</div>
+        <div class="sheet-subtitle-txt">National Taiwan University Hospital · Department of Medical Research</div>
+      </div>
+      <div class="sheet-meta-bar">
+        <div class="sm-item"><span class="sm-lbl">日期</span>${dateStr}</div>
+        <div class="sm-item"><span class="sm-lbl">地點</span>${location}</div>
+        <div class="sm-item"><span class="sm-lbl">人數</span>${persons.length} 人</div>
+        ${catHTML}
+      </div>
+      <div class="sheet-tbl-wrap">
+        <table class="sheet-tbl">
+          <thead><tr>
+            <th style="width:40px">編號</th><th>姓名</th><th>單位</th><th>簽名</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════════════════════
+   EXCEL / CSV EXPORT
+══════════════════════════════════ */
+function exportExcel() {
+  const title = document.getElementById('s-title').value || '臺大醫院醫學研究部學術演講簽到表';
+  const dateVal = document.getElementById('s-date').value;
+  const location = document.getElementById('s-venue').value || '';
+  const dateStr = dateVal ? formatSheetDate(dateVal) : '';
+  const sorted = sortedPersons();
+  const wb = XLSX.utils.book_new();
+  const wsData = [
+    [title],
+    [`日期：${dateStr}`, '', `地點：${location}`, '', `出席人數：${sorted.length} 人`],
+    [],
+    ['編號','姓名','單位','簽名'],
+    ...sorted.map((p,i) => [i+1, p.name, p.unit, '']),
+    ...Array(5).fill(null).map((_,i) => [sorted.length+i+1,'','',''])
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [{wch:6},{wch:14},{wch:22},{wch:24}];
+  ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:3}}];
+  XLSX.utils.book_append_sheet(wb, ws, '簽到表');
+  XLSX.writeFile(wb, `簽到表_${dateVal||'no-date'}.xlsx`);
+}
+
+function exportCSV() {
+  const title = document.getElementById('s-title').value || '臺大醫院醫學研究部學術演講簽到表';
+  const dateVal = document.getElementById('s-date').value;
+  const location = document.getElementById('s-venue').value || '';
+  const dateStr = dateVal ? formatSheetDate(dateVal) : '';
+  const sorted = sortedPersons();
+  const rows = [
+    [title],
+    [`日期：${dateStr}`,`地點：${location}`],
+    [],
+    ['編號','姓名','單位','簽名'],
+    ...sorted.map((p,i) => [i+1, p.name, p.unit, ''])
+  ];
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`簽到表_${dateVal||'no-date'}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════════════════
+   PRINT
+══════════════════════════════════ */
+function printSheet() {
+  if (!persons.length) { showToast('請先新增出席人員'); return; }
+  document.body.classList.remove('print-blank');
+  window.print();
+}
+
+function printBlank() {
+  const title = document.getElementById('s-title').value || '臺大醫院醫學研究部學術演講簽到表';
+  const dateVal = document.getElementById('s-date').value;
+  const location = document.getElementById('s-venue').value || '';
+  const dateStr = dateVal ? formatSheetDate(dateVal) : '';
+  const cats = getActiveCats();
+  const ROWS = 30;
+
+  let rows='';
+  for(let i=1;i<=ROWS;i++) rows+=`<tr><td style="width:48px">${i}</td><td></td><td></td><td><div style="width:110px;height:22px;border-bottom:1px solid #888;display:inline-block"></div></td></tr>`;
+
+  document.getElementById('blankSheet').innerHTML=`
+    <div class="bh">
+      <div class="bh-t">${title}</div>
+      <div class="bh-s">National Taiwan University Hospital · Department of Medical Research</div>
+    </div>
+    <div class="bm">
+      <div class="bm-i"><span class="bm-l">日期</span><span class="bm-line">${dateStr}</span></div>
+      <div class="bm-i"><span class="bm-l">地點</span><span class="bm-line">${location}</span></div>
+      ${cats.length?`<div class="bm-i"><span class="bm-l">類別</span><span>${cats.join('、')}</span></div>`:''}
+    </div>
+    <div style="padding:8px 20px">
+      <table style="width:100%;border-collapse:collapse;font-size:16px">
+        <thead><tr style="background:#444"><th style="width:48px;padding:6px 10px;text-align:center;color:white;font-family:'Noto Serif TC',serif">編號</th><th style="padding:6px 10px;text-align:center;color:white;font-family:'Noto Serif TC',serif">姓名</th><th style="padding:6px 10px;text-align:center;color:white;font-family:'Noto Serif TC',serif">單位</th><th style="padding:6px 10px;text-align:center;color:white;font-family:'Noto Serif TC',serif">簽名</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="bf">© 2026 台大醫院 醫學研究部 All rights reserved．系統建置：醫學研究部陳巧瑜管理師</div>`;
+
+  document.body.classList.add('print-blank');
+
+  // Switch to sign-in module for printing context
+  window.print();
+  setTimeout(()=>document.body.classList.remove('print-blank'),1000);
+}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
 }
 
-// ── Pre-fill example on load ──
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('f-series').value = '生成式AI工具輔助論文寫作系列課程';
-  document.getElementById('f-topic').value = '生成式 AI 在生醫資料分析的應用：效率、再現性與資料安全';
-  document.getElementById('f-speaker').value = '李季青副教授';
-  document.getElementById('f-affiliation').value = '長庚大學資訊工程系';
-  document.getElementById('f-datetime').value = '115年1月29日 (四) 12:00-13:00';
-  document.getElementById('f-venue').value = '台大醫院西址第七講堂';
-  document.getElementById('f-contact').value = '醫學研究部 陳巧瑜管理師(分機263254)';
-  document.getElementById('f-regurl').value = 'https://redcap.ntuh.gov.tw/surveys/?s=KAXD7DWRR8LFHRYN';
-  document.getElementById('f-abstract').value = '生成式 AI透過自然語言理解研究者的分析需求，協助建立資料清洗、統計摘要與科學圖表製作。然而，仍可能存在不透明、細節不一致、邏輯瑕疵與版本不可控等問題，若未經妥善驗證，容易在研究流程中埋下再現性不足或誤用資料的隱患。本主題探討如何有效引導 AI 生成可追溯、可版本化且易於重複執行的程式碼，強化研究流程的再現性並提升分析紀錄的可維護性。最後，基於生醫資料的敏感特性，也將談及使用雲端 AI 工具時應遵循的資料治理原則，以及降低資料外洩風險的實務作法，包括資料脫敏、局部資料模擬，以及以程式碼互動替代直接上傳原始資料等安全策略。';
-  // Post-event fields
-  document.getElementById('f-host').value = '楊鎧鍵教授';
-  document.getElementById('f-host-role').value = '醫學研究部規劃訓練組組長';
-  document.getElementById('f-video').value = 'https://edu.ntuh.gov.tw/course/200332';
-  document.getElementById('f-courseno').value = '200332';
-  document.getElementById('f-staff').value = '陳巧瑜、高俐婷、范曉寧、黃舒宜';
+/* ══════════════════════════════════
+   INIT
+══════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date as default for sign-in sheet
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('s-date').value = today;
+  renderSheet();
 });
 </script>
+
 </body>
 </html>
