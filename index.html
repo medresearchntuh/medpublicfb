@@ -417,6 +417,69 @@ body {
 .sig-box { display: inline-block; width: 110px; height: 24px; border-bottom: 1px solid #aaa; background: transparent; }
 .sheet-empty { text-align: center; padding: 40px 20px; color: var(--ink-muted); font-size: 13px; }
 
+/* ── Email reminder card ── */
+.email-card {
+  flex: 1; background: white;
+  border: 1px solid var(--rule-light);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  overflow-y: auto;
+}
+.email-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px; color: var(--ink-muted);
+  text-align: center; padding: 60px 40px; height: 100%;
+}
+.email-empty svg { opacity: 0.15; }
+.email-empty p { font-family: 'Noto Serif TC', serif; font-size: 13px; letter-spacing: 0.08em; line-height: 1.8; }
+.email-inner { padding: 28px 36px; }
+.email-subject-row {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule-light);
+}
+.email-subject-lbl {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
+  color: var(--accent); text-transform: uppercase;
+  white-space: nowrap; flex-shrink: 0;
+}
+.email-subject-val {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 15px; font-weight: 600; color: var(--ink);
+  letter-spacing: 0.04em; line-height: 1.4;
+}
+.email-body {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 13.5px; line-height: 2;
+  color: var(--ink-light); white-space: pre-wrap;
+}
+.email-body strong { color: var(--ink); font-weight: 600; }
+.email-meta-block {
+  background: var(--paper-warm);
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px; margin: 16px 0;
+  font-size: 13px; color: var(--ink-light);
+  line-height: 1.9;
+}
+.email-meta-block .meta-row { display: flex; gap: 12px; }
+.email-meta-block .mk { color: var(--ink-muted); font-weight: 500; white-space: nowrap; min-width: 60px; }
+.email-note-block {
+  background: #fefce8; border-left: 3px solid #f59e0b;
+  padding: 12px 16px; margin: 14px 0;
+  font-size: 13px; line-height: 1.85; color: #78350f;
+}
+.email-note-block .note-title {
+  font-weight: 600; font-size: 11px; letter-spacing: 0.15em;
+  color: #92400e; margin-bottom: 6px; text-transform: uppercase;
+}
+.email-type-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px; font-size: 10.5px;
+  font-weight: 600; letter-spacing: 0.1em; margin-bottom: 14px;
+}
+.email-type-badge.student { background: #e0f2fe; color: #0369a1; }
+.email-type-badge.speaker { background: #fef3c7; color: #92400e; }
+
 /* ── Toast ── */
 .toast {
   position: fixed; bottom: 22px; right: 22px;
@@ -658,6 +721,15 @@ body {
         <div class="sb-label">公告專用</div>
         <div class="fg"><label>演講摘要</label><textarea id="a-abstract" rows="6" placeholder="請輸入演講摘要…"></textarea></div>
         <div class="fg"><label>報名網址</label><input type="url" id="a-regurl" placeholder="https://…"></div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">提醒信專用</div>
+        <div class="fg"><label>主持人姓名</label><input type="text" id="a-host" placeholder="例：楊鎧鍵教授"></div>
+        <div class="fg"><label>承辦人稱呼</label><input type="text" id="a-sender" placeholder="例：巧瑜" value="巧瑜"></div>
+        <div class="fg"><label>承辦人聯絡資訊</label><input type="text" id="a-sender-contact" placeholder="例：分機263254 / chaoyu@ntuh.gov.tw"></div>
       </div>
 
       <button class="gen-btn" onclick="generateAnn()">產生公告文件</button>
@@ -903,14 +975,23 @@ body {
     <!-- Announcement module -->
     <div class="module active" id="mod-announcement">
       <div class="mode-bar">
-        <button class="mode-btn active" onclick="setMode('ann','preview',this)">預覽</button>
+        <button class="mode-btn active" id="ann-tab-preview" onclick="setAnnTab('preview',this)">公告預覽</button>
         <div class="mode-sep"></div>
-        <button class="mode-btn" onclick="setMode('ann','text',this)">純文字</button>
-        <button class="action-btn copy" id="ann-copy-btn" onclick="copyDoc('ann')">
+        <button class="mode-btn" id="ann-tab-text" onclick="setAnnTab('text',this)">純文字</button>
+        <div class="mode-sep"></div>
+        <button class="mode-btn" id="ann-tab-student" onclick="setAnnTab('student',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>學員提醒信
+        </button>
+        <button class="mode-btn" id="ann-tab-speaker" onclick="setAnnTab('speaker',this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:middle;margin-right:3px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>講師提醒信
+        </button>
+        <button class="action-btn copy" id="ann-copy-btn" onclick="annCopyActive()">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>複製
         </button>
       </div>
       <div class="out-panels">
+
+        <!-- Preview panel -->
         <div class="out-panel visible" id="ann-preview">
           <div class="empty" id="ann-empty">
             <svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="4" width="32" height="44" rx="2" stroke="currentColor" stroke-width="1.5"/><line x1="14" y1="16" x2="34" y2="16" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="23" x2="34" y2="23" stroke="currentColor" stroke-width="1.2"/><line x1="14" y1="30" x2="26" y2="30" stroke="currentColor" stroke-width="1.2"/><circle cx="44" cy="44" r="9" fill="white" stroke="currentColor" stroke-width="1.5"/><path d="M41 44h6M44 41v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -920,9 +1001,32 @@ body {
             <div class="doc-body" id="ann-doc-body"></div>
           </div>
         </div>
+
+        <!-- Plain text panel -->
         <div class="out-panel" id="ann-text">
           <div class="text-out" id="ann-text-out" contenteditable="true"></div>
         </div>
+
+        <!-- Student reminder email panel -->
+        <div class="out-panel" id="ann-student">
+          <div class="email-card" id="ann-student-card">
+            <div class="email-empty">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <p>請先產生公告文件，<br>再切換此頁籤查看提醒信</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Speaker reminder email panel -->
+        <div class="out-panel" id="ann-speaker">
+          <div class="email-card" id="ann-speaker-card">
+            <div class="email-empty">
+              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <p>請先產生公告文件，<br>再切換此頁籤查看提醒信</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1038,14 +1142,50 @@ function typeLabel() {
 }
 
 /* ══════════════════════════════════
-   MODE (preview / text)
+   MODE (preview / text) — post-event only
 ══════════════════════════════════ */
 function setMode(mod, mode, el) {
   el.closest('.mode-bar').querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  const prefix = mod === 'ann' ? 'ann' : 'post';
+  const prefix = 'post';
   document.getElementById(prefix + '-preview').classList.toggle('visible', mode === 'preview');
   document.getElementById(prefix + '-text').classList.toggle('visible', mode === 'text');
+}
+
+/* ══════════════════════════════════
+   ANNOUNCEMENT TAB SWITCHER
+══════════════════════════════════ */
+let annActiveTab = 'preview';
+
+function setAnnTab(tab, el) {
+  annActiveTab = tab;
+  document.querySelectorAll('#mod-announcement .mode-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  ['ann-preview','ann-text','ann-student','ann-speaker'].forEach(id => {
+    document.getElementById(id).classList.toggle('visible', id === 'ann-' + tab);
+  });
+}
+
+function annCopyActive() {
+  let txt = '';
+  if (annActiveTab === 'preview' || annActiveTab === 'text') {
+    txt = annText;
+  } else if (annActiveTab === 'student') {
+    txt = document.getElementById('ann-student-plain')?.value || '';
+  } else if (annActiveTab === 'speaker') {
+    txt = document.getElementById('ann-speaker-plain')?.value || '';
+  }
+  if (!txt) { showToast('請先產生文件'); return; }
+  navigator.clipboard.writeText(txt).then(() => {
+    showToast('已複製到剪貼簿');
+    const btn = document.getElementById('ann-copy-btn');
+    btn.classList.add('done');
+    btn.textContent = '✓ 已複製';
+    setTimeout(() => {
+      btn.classList.remove('done');
+      btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>複製`;
+    }, 2200);
+  });
 }
 
 /* ══════════════════════════════════
@@ -1094,17 +1234,13 @@ function generateAnn() {
   const contact = v('a-contact'), abstract = v('a-abstract'), regurl = v('a-regurl');
   const spk = affil ? `${affil} ${speaker}` : speaker;
 
-  // Preview HTML
+  // ── Preview HTML ──
   let html = '<div class="ann-hd">';
   if (series) html += `<div class="ann-series">台大醫院醫學研究部＿${series}</div>`;
   html += `<div class="ann-badge">${typeLabel()}</div>`;
   html += `<div class="ann-title">${topic}</div>`;
   html += `<div class="ann-speaker">${spk}</div></div>`;
-
-  if (abstract) {
-    html += `<div class="ann-abstract"><div class="ann-abstract-lbl">演講摘要</div>${abstract}</div>`;
-  }
-
+  if (abstract) html += `<div class="ann-abstract"><div class="ann-abstract-lbl">演講摘要</div>${abstract}</div>`;
   html += '<div class="ann-meta">';
   html += `<span class="meta-k">時間</span><span class="meta-v">${datetime}</span>`;
   html += `<span class="meta-k">地點</span><span class="meta-v">${venue}</span>`;
@@ -1112,12 +1248,11 @@ function generateAnn() {
   html += `<span class="meta-k">主辦單位</span><span class="meta-v">${org}</span>`;
   if (contact) html += `<span class="meta-k">承辦人員</span><span class="meta-v">${contact}</span>`;
   html += '</div>';
-
   document.getElementById('ann-doc-body').innerHTML = html;
   document.getElementById('ann-doc').style.display = '';
   document.getElementById('ann-empty').style.display = 'none';
 
-  // Plain text
+  // ── Plain text ──
   let txt = '';
   if (series) txt += `【台大醫院醫學研究部_${series}】\n\n`;
   txt += `講題：${topic}\n講者：${spk}\n`;
@@ -1128,6 +1263,9 @@ function generateAnn() {
   if (contact) txt += `承辦人員：${contact}\n`;
   annText = txt.trim();
   document.getElementById('ann-text-out').textContent = annText;
+
+  // ── Build reminder emails ──
+  generateReminderEmails({ topic, spk, speaker, affil, datetime, venue, org, contact, regurl, series });
 }
 
 /* ══════════════════════════════════
@@ -1196,18 +1334,143 @@ function generatePost() {
    COPY
 ══════════════════════════════════ */
 function copyDoc(mod) {
-  const txt = mod === 'ann' ? annText : postText;
+  const txt = postText;
   if (!txt) { showToast('請先產生文件'); return; }
   navigator.clipboard.writeText(txt).then(() => {
     showToast('已複製到剪貼簿');
-    const btn = document.getElementById(mod + '-copy-btn');
-    btn.classList.add('done');
-    btn.textContent = '✓ 已複製';
+    const btn = document.getElementById('post-copy-btn');
+    btn.classList.add('done'); btn.textContent = '✓ 已複製';
     setTimeout(() => {
       btn.classList.remove('done');
       btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="3" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3 3V2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>複製`;
     }, 2200);
   });
+}
+
+/* ══════════════════════════════════
+   REMINDER EMAIL GENERATOR
+══════════════════════════════════ */
+function buildMetaBlock(data) {
+  const { topic, spk, datetime, venue, org, contact, regurl } = data;
+  let rows = '';
+  rows += `<div class="meta-row"><span class="mk">講題</span><span>${topic}</span></div>`;
+  rows += `<div class="meta-row"><span class="mk">講者</span><span>${spk}</span></div>`;
+  rows += `<div class="meta-row"><span class="mk">時間</span><span>${datetime}</span></div>`;
+  rows += `<div class="meta-row"><span class="mk">地點</span><span>${venue}</span></div>`;
+  if (org) rows += `<div class="meta-row"><span class="mk">主辦</span><span>${org}</span></div>`;
+  if (contact) rows += `<div class="meta-row"><span class="mk">承辦</span><span>${contact}</span></div>`;
+  if (regurl) rows += `<div class="meta-row"><span class="mk">報名</span><span><a href="${regurl}" style="color:var(--accent)">${regurl}</a></span></div>`;
+  return `<div class="email-meta-block">${rows}</div>`;
+}
+
+function buildMetaText(data) {
+  const { topic, spk, datetime, venue, org, contact, regurl } = data;
+  let t = '';
+  t += `講題：${topic}\n`;
+  t += `講者：${spk}\n`;
+  t += `時間：${datetime}\n`;
+  t += `地點：${venue}\n`;
+  if (org) t += `主辦單位：${org}\n`;
+  if (contact) t += `承辦人員：${contact}\n`;
+  if (regurl) t += `報名網址：${regurl}\n`;
+  return t;
+}
+
+function generateReminderEmails(data) {
+  const { topic, datetime, venue, contact, series } = data;
+  const host = v('a-host');
+  const sender = v('a-sender') || '巧瑜';
+  const senderContact = v('a-sender-contact');
+
+  // Short date for subject (strip weekday)
+  const shortDate = datetime.split(' ')[0] || datetime;
+  const shortTime = datetime.includes(' ') ? datetime.split(' ').slice(1).join(' ') : '';
+
+  // ── STUDENT EMAIL ──
+  const studentSubject = `[學員提醒] ${shortDate} ${shortTime} ${topic}`;
+  const studentBodyText =
+`各位報名同仁您好：
+
+提醒您已報名以下講座，敬請準時前往參加，如有任何問題也請回信與承辦人聯絡，謝謝您。
+
+${buildMetaText(data)}
+敬祝　 研安
+
+${contact || '醫學研究部 敬上'}`;
+
+  // Build student preview HTML
+  const studentHTML = `
+    <div class="email-inner">
+      <span class="email-type-badge student">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        學員提醒信
+      </span>
+      <div class="email-subject-row">
+        <span class="email-subject-lbl">主旨</span>
+        <span class="email-subject-val">${studentSubject}</span>
+      </div>
+      <div class="email-body">各位報名同仁您好：
+
+提醒您已報名以下講座，敬請準時前往參加，如有任何問題也請回信與承辦人聯絡，謝謝您。
+</div>
+      ${buildMetaBlock(data)}
+      <div class="email-body">敬祝　 研安
+
+${contact || '醫學研究部 敬上'}</div>
+    </div>
+    <textarea id="ann-student-plain" style="display:none">${studentSubject}\n\n${studentBodyText}</textarea>`;
+
+  document.getElementById('ann-student-card').innerHTML = studentHTML;
+
+  // ── SPEAKER EMAIL ──
+  const speakerSubject = `[講師提醒] ${shortDate} ${shortTime} ${topic}`;
+  const noteLines = [
+    `當天${contact ? contact.replace(/醫學研究部\s?/, '') : sender}會提早半小時至${venue}進行前置作業，如您有準備PPT也可提前寄給我或提早至講堂測試投影片。`,
+    `因該講堂設備關係建議使用現場講桌電腦播放。`,
+    `本院將準備微薄的講座鐘點費感謝您受邀前來，敬請攜帶收款存摺影本，當天會請您簽收鐘點費與錄影授權書，鐘點費後續將由本院出納組撥款。`
+  ];
+
+  const speakerBodyText =
+`您好：
+
+我是台大醫院醫學研究部的同仁${sender}，很高興您能於${shortDate}受邀分享，${host ? `本次演講將會由${host}開場，` : ''}以下是講座辦理的相關流程與參加人員分佈，如您有不清楚的地方也可與${sender}聯繫。
+
+${buildMetaText(data)}
+提醒：
+1. ${noteLines[0]}
+2. ${noteLines[1]}
+3. ${noteLines[2]}
+
+我們非常期待您的演講分享，如期間有任何問題或需要提供協助的部分也請隨時與${sender}聯繫，謝謝您！${senderContact ? '\n' + senderContact : ''}`;
+
+  const speakerHTML = `
+    <div class="email-inner">
+      <span class="email-type-badge speaker">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        講師提醒信
+      </span>
+      <div class="email-subject-row">
+        <span class="email-subject-lbl">主旨</span>
+        <span class="email-subject-val">${speakerSubject}</span>
+      </div>
+      <div class="email-body">您好：
+
+我是台大醫院醫學研究部的同仁<strong>${sender}</strong>，很高興您能於 <strong>${shortDate}</strong> 受邀分享，${host ? `本次演講將會由 <strong>${host}</strong> 開場，` : ''}以下是講座辦理的相關流程與參加人員分佈，如您有不清楚的地方也可與${sender}聯繫。
+</div>
+      ${buildMetaBlock(data)}
+      <div class="email-note-block">
+        <div class="note-title">提醒事項</div>
+        <div style="line-height:1.9">
+          1. ${noteLines[0]}<br>
+          2. ${noteLines[1]}<br>
+          3. ${noteLines[2]}
+        </div>
+      </div>
+      <div class="email-body">我們非常期待您的演講分享，如期間有任何問題或需要提供協助的部分也請隨時與<strong>${sender}</strong>聯繫，謝謝您！${senderContact ? `\n${senderContact}` : ''}</div>
+    </div>
+    <textarea id="ann-speaker-plain" style="display:none">${speakerSubject}\n\n${speakerBodyText}</textarea>`;
+
+  document.getElementById('ann-speaker-card').innerHTML = speakerHTML;
 }
 
 /* ══════════════════════════════════
