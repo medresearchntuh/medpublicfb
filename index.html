@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>台大醫院醫學研究部｜演講文件管理系統</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
 /* ── Variables ── */
 :root {
@@ -433,35 +433,122 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
 
+/* ── Namecard module ── */
+.nc-section { margin-bottom: 18px; }
+.nc-field { margin-bottom: 10px; }
+.nc-field label { display:block; font-size:11.5px; color:var(--ink-muted); margin-bottom:4px; font-weight:500; letter-spacing:0.04em; }
+.nc-field input[type=text], .nc-field input[type=number], .nc-field select, .nc-field textarea {
+  width:100%; border:1px solid var(--rule); border-radius:3px;
+  padding:7px 10px; font-family:'Noto Sans TC',sans-serif;
+  font-size:12.5px; color:var(--ink); background:white;
+  transition:border-color 0.15s; line-height:1.5; outline:none;
+}
+.nc-field input:focus, .nc-field textarea:focus, .nc-field select:focus {
+  border-color:var(--accent); box-shadow:0 0 0 2px rgba(139,26,26,0.08);
+}
+.nc-field textarea { resize:vertical; min-height:80px; }
+.nc-field select {
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 9px center; cursor:pointer;
+}
+.nc-field .two-col { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.nc-range-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+.nc-range-row label { font-size:11.5px; color:var(--ink-muted); font-weight:500; }
+.nc-range-row span { font-size:11.5px; color:var(--accent); font-weight:600; font-variant-numeric:tabular-nums; }
+.nc-field input[type=range] { width:100%; accent-color:var(--accent); cursor:pointer; }
+.nc-color-row { display:flex; align-items:center; gap:8px; }
+.nc-color-row input[type=color] { width:28px; height:28px; border:none; padding:0; background:none; cursor:pointer; border-radius:3px; }
+.nc-color-row span { font-size:11.5px; color:var(--ink-muted); font-family:monospace; }
+.nc-logo-btn {
+  width:100%; padding:7px; border:1.5px dashed var(--rule); border-radius:3px;
+  background:none; cursor:pointer; font-size:12px; color:var(--ink-muted);
+  font-family:'Noto Sans TC',sans-serif; transition:all 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+}
+.nc-logo-btn:hover { border-color:var(--accent); color:var(--accent); }
+.nc-print-btn {
+  width:100%; padding:10px;
+  background:var(--navy); color:white;
+  border:none; border-radius:3px;
+  font-family:'Noto Serif TC',serif;
+  font-size:13px; letter-spacing:0.12em;
+  cursor:pointer; transition:background 0.15s;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+}
+.nc-print-btn:hover { background:var(--navy-light); }
+.nc-hint {
+  background:#fefce8; border:1px solid #fde68a;
+  border-radius:3px; padding:10px 12px;
+  font-size:11.5px; color:#92400e; line-height:1.7;
+  margin-bottom:14px;
+}
+.nc-hint strong { font-weight:600; }
+
+/* Namecard preview area */
+.nc-preview-area {
+  flex:1; overflow-y:auto;
+  padding:28px 32px;
+  display:flex; flex-direction:column; gap:24px; align-items:center;
+}
+.nc-card-wrap {
+  box-shadow:0 4px 20px rgba(0,0,0,0.12);
+  border-radius:2px;
+  transition:box-shadow 0.2s;
+  flex-shrink:0;
+}
+.nc-card-wrap:hover { box-shadow:0 6px 28px rgba(0,0,0,0.18); }
+.nc-dims { font-size:11.5px; color:var(--ink-muted); font-family:'Noto Sans TC',sans-serif; text-align:center; margin-top:-8px; }
+.nc-empty {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:14px; color:var(--ink-muted);
+  text-align:center; padding:60px 40px;
+}
+.nc-empty svg { opacity:0.15; }
+.nc-empty p { font-family:'Noto Serif TC',serif; font-size:13.5px; letter-spacing:0.08em; line-height:1.8; }
+
 /* ── Print ── */
 @media print {
-  @page { margin: 14mm 12mm; }
+  @page { margin: 0; size: A4 portrait; }
   a[href]:after { content: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   body { background: white; }
   .app-header, .top-nav, .sidebar, .mode-bar, .toast { display: none !important; }
   .app-body { display: block; }
-  .module { display: block !important; }
-  .module:not(#mod-signin) { display: none !important; }
-  .out-panels { padding: 0; }
-  .out-panel { display: block; }
-  .out-panel:not(#sp-preview) { display: none !important; }
-  .sheet-wrap { box-shadow: none; border: none; }
-  .sheet-hdr { background: white !important; color: black !important; padding: 10px 20px; border-bottom: 2px solid black; }
-  .sheet-title-txt { font-size: 18px !important; letter-spacing: 3px; color: black !important; }
-  .sheet-subtitle-txt { color: #444 !important; font-size: 10px !important; }
-  .sheet-meta-bar { background: white !important; padding: 8px 20px; border-bottom: 1px solid black; gap: 28px; }
-  .sm-lbl { color: black !important; font-weight: 700; }
-  .sm-item { color: black !important; font-size: 12px; }
-  .sheet-tbl-wrap { padding: 8px 20px; }
-  .sheet-tbl { font-size: 16px; }
-  .sheet-tbl thead { display: table-header-group; }
-  .sheet-tbl thead tr { background: #444 !important; }
-  .sheet-tbl thead th { color: white !important; }
-  .sheet-tbl tbody tr { border-bottom: 1px solid #ccc !important; background: white !important; }
-  .sheet-tbl tbody tr:nth-child(even) { background: white !important; }
-  .sheet-tbl td { background: white !important; }
-  .sig-box { width: 110px; height: 22px; }
+  /* Hide all modules by default */
+  .module { display: none !important; }
+  /* Show only signin when not namecard print */
+  body:not(.print-namecard) #mod-signin { display: block !important; }
+  body:not(.print-namecard) .out-panels { padding: 0; }
+  body:not(.print-namecard) .out-panel { display: block; }
+  body:not(.print-namecard) .out-panel:not(#sp-preview) { display: none !important; }
+  body:not(.print-namecard) .sheet-wrap { box-shadow: none; border: none; }
+  body:not(.print-namecard) .sheet-hdr { background: white !important; color: black !important; padding: 10px 20px; border-bottom: 2px solid black; }
+  body:not(.print-namecard) .sheet-title-txt { font-size: 18px !important; letter-spacing: 3px; color: black !important; }
+  body:not(.print-namecard) .sheet-subtitle-txt { color: #444 !important; font-size: 10px !important; }
+  body:not(.print-namecard) .sheet-meta-bar { background: white !important; padding: 8px 20px; border-bottom: 1px solid black; gap: 28px; }
+  body:not(.print-namecard) .sm-lbl { color: black !important; font-weight: 700; }
+  body:not(.print-namecard) .sm-item { color: black !important; font-size: 12px; }
+  body:not(.print-namecard) .sheet-tbl-wrap { padding: 8px 20px; }
+  body:not(.print-namecard) .sheet-tbl { font-size: 16px; }
+  body:not(.print-namecard) .sheet-tbl thead { display: table-header-group; }
+  body:not(.print-namecard) .sheet-tbl thead tr { background: #444 !important; }
+  body:not(.print-namecard) .sheet-tbl thead th { color: white !important; }
+  body:not(.print-namecard) .sheet-tbl tbody tr { border-bottom: 1px solid #ccc !important; background: white !important; }
+  body:not(.print-namecard) .sheet-tbl tbody tr:nth-child(even) { background: white !important; }
+  body:not(.print-namecard) .sheet-tbl td { background: white !important; }
+  body:not(.print-namecard) .sig-box { width: 110px; height: 22px; }
+  /* Namecard print mode */
+  body.print-namecard #nc-print-area {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1cm;
+    align-items: center;
+    padding: 1cm 0;
+  }
+  body.print-namecard .nc-print-item { break-inside: avoid; page-break-inside: avoid; }
+  #nc-print-area { display: none; }
   #blankSheet { display: none; }
   body.print-blank #blankSheet { display: block !important; }
   body.print-blank .out-panels { display: none !important; }
@@ -515,6 +602,9 @@ body {
   </button>
   <button class="nav-btn" onclick="switchModule('signin', this)">
     <span class="dot"></span>簽到表
+  </button>
+  <button class="nav-btn" onclick="switchModule('namecard', this)">
+    <span class="dot"></span>桌牌列印
   </button>
 </nav>
 
@@ -697,6 +787,116 @@ body {
     </div>
   </aside>
 
+  <!-- ══ NAMECARD SIDEBAR ══ -->
+  <aside class="sidebar" id="sb-namecard" style="display:none">
+    <div class="sidebar-inner">
+
+      <div class="sb-section">
+        <div class="sb-label">活動標題</div>
+        <div class="nc-field"><label>大會／組織標題（共用）</label><input type="text" id="nc-event" placeholder="例：台大醫院醫學研究部學術研討會"></div>
+        <div class="nc-field">
+          <label>上傳 Logo（共用）</label>
+          <input type="file" accept="image/*" id="nc-logo-file" style="display:none" onchange="handleLogoUpload(event)">
+          <button class="nc-logo-btn" onclick="document.getElementById('nc-logo-file').click()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span id="nc-logo-label">選擇圖片</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">名單輸入</div>
+        <div class="nc-field">
+          <label>批次輸入（每行一筆：姓名，職稱）</label>
+          <textarea id="nc-list" rows="7" placeholder="王大明，醫學研究部主任&#10;李小華，規劃訓練組組長&#10;陳美玲，管理師" oninput="renderNamecards()"></textarea>
+          <div style="font-size:11px;color:var(--accent);text-align:right;margin-top:3px" id="nc-count"></div>
+        </div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">尺寸設定</div>
+        <div class="nc-field">
+          <div class="two-col">
+            <div>
+              <label>單面寬度 (cm)</label>
+              <input type="number" id="nc-width" value="19.5" step="0.1" min="5" oninput="renderNamecards()">
+            </div>
+            <div>
+              <label>單面高度 (cm)</label>
+              <input type="number" id="nc-height" value="6.5" step="0.1" min="3" oninput="renderNamecards()">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-divider"></div>
+
+      <div class="sb-section">
+        <div class="sb-label">外觀樣式</div>
+
+        <div class="nc-field">
+          <label>背景漸層方向</label>
+          <select id="nc-gradient" onchange="renderNamecards()">
+            <option value="to right">由左至右</option>
+            <option value="to bottom">由上至下</option>
+            <option value="to bottom right">左上至右下</option>
+            <option value="to top right">左下至右上</option>
+          </select>
+        </div>
+
+        <div class="nc-field">
+          <div class="two-col">
+            <div>
+              <label>漸層起始色</label>
+              <div class="nc-color-row">
+                <input type="color" id="nc-c1" value="#ffffff" oninput="renderNamecards()">
+                <span id="nc-c1-lbl">#ffffff</span>
+              </div>
+            </div>
+            <div>
+              <label>漸層結束色</label>
+              <div class="nc-color-row">
+                <input type="color" id="nc-c2" value="#dce8f5" oninput="renderNamecards()">
+                <span id="nc-c2-lbl">#dce8f5</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="nc-field">
+          <label>文字主色</label>
+          <div class="nc-color-row">
+            <input type="color" id="nc-tc" value="#1a2b4a" oninput="renderNamecards()">
+            <span id="nc-tc-lbl">#1a2b4a</span>
+          </div>
+        </div>
+
+        <div class="nc-field">
+          <div class="nc-range-row"><label>姓名大小</label><span id="nc-ns-val">60px</span></div>
+          <input type="range" min="28" max="100" value="60" id="nc-namesize" oninput="ncRangeUpdate('nc-namesize','nc-ns-val','px');renderNamecards()">
+        </div>
+        <div class="nc-field">
+          <div class="nc-range-row"><label>職稱大小</label><span id="nc-ts-val">22px</span></div>
+          <input type="range" min="10" max="48" value="22" id="nc-titlesize" oninput="ncRangeUpdate('nc-titlesize','nc-ts-val','px');renderNamecards()">
+        </div>
+        <div class="nc-field">
+          <div class="nc-range-row"><label>頂部標題大小</label><span id="nc-es-val">16px</span></div>
+          <input type="range" min="8" max="36" value="16" id="nc-eventsize" oninput="ncRangeUpdate('nc-eventsize','nc-es-val','px');renderNamecards()">
+        </div>
+      </div>
+
+      <button class="nc-print-btn" onclick="printNamecards()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        列印 / 匯出 PDF
+      </button>
+
+    </div>
+  </aside>
+
   <!-- ══ CONTENT AREA ══ -->
   <div class="content">
 
@@ -766,11 +966,29 @@ body {
       </div>
     </div>
 
+    <!-- Namecard module -->
+    <div class="module" id="mod-namecard">
+      <div class="mode-bar">
+        <span style="font-family:'Noto Serif TC',serif;font-size:12.5px;letter-spacing:0.12em;color:var(--ink-muted)">桌牌預覽</span>
+        <span style="margin-left:8px;background:var(--navy);color:var(--gold-light);font-size:9px;font-weight:600;letter-spacing:2px;padding:3px 10px;border-radius:20px">LIVE</span>
+        <span style="margin-left:auto;font-size:11.5px;color:var(--ink-muted)">雙面摺疊桌牌．A4直向列印．縮放100%．勾選背景圖形</span>
+      </div>
+      <div class="nc-preview-area" id="nc-preview-area">
+        <div class="nc-empty" id="nc-empty">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <p>在左側輸入名單<br>即時預覽桌牌效果</p>
+        </div>
+        <div id="nc-cards"></div>
+      </div>
+    </div>
+
   </div><!-- end content -->
 </div><!-- end app-body -->
 
 <!-- Hidden blank print sheet -->
 <div id="blankSheet" style="display:none"></div>
+<!-- Hidden namecard print area -->
+<div id="nc-print-area" style="display:none"></div>
 
 <footer class="app-footer">
   <div>© 2026 台大醫院 醫學研究部 All rights reserved.</div>
@@ -795,13 +1013,14 @@ function switchModule(mod, el) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 
-  ['announcement','postevent','signin'].forEach(m => {
+  ['announcement','postevent','signin','namecard'].forEach(m => {
     document.getElementById('mod-' + m).classList.toggle('active', m === mod);
     const sb = document.getElementById('sb-' + m);
     if (sb) sb.style.display = m === mod ? '' : 'none';
   });
 
   if (mod === 'signin') renderSheet();
+  if (mod === 'namecard') renderNamecards();
 }
 
 /* ══════════════════════════════════
@@ -1254,10 +1473,139 @@ function showToast(msg) {
 }
 
 /* ══════════════════════════════════
-   INIT
+   NAMECARD
 ══════════════════════════════════ */
+let ncLogoDataUrl = null;
+
+function ncv(id) { return document.getElementById(id)?.value || ''; }
+
+function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    ncLogoDataUrl = ev.target.result;
+    document.getElementById('nc-logo-label').textContent = '更換 Logo';
+    renderNamecards();
+  };
+  reader.readAsDataURL(file);
+}
+
+function ncRangeUpdate(rangeId, labelId, suffix) {
+  document.getElementById(labelId).textContent = document.getElementById(rangeId).value + suffix;
+}
+
+function getNcAttendees() {
+  return ncv('nc-list').split('\n')
+    .map(line => {
+      const parts = line.split(/[,，\t]+/);
+      return { name: parts[0]?.trim()||'', job: parts[1]?.trim()||'' };
+    })
+    .filter(a => a.name);
+}
+
+function buildNameplateHTML(name, job, opts) {
+  const { w, h, c1, c2, gdir, textColor, nameSize, titleSize, eventSize, eventTitle, logo } = opts;
+  const logoHtml = logo
+    ? `<img src="${logo}" style="max-height:1.4cm;object-fit:contain;" alt="Logo">`
+    : `<div style="width:1.4cm;height:1.4cm;border:1.5px dashed #ccc;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:10px;">LOGO</div>`;
+
+  return `<div style="
+    width:${w}cm; height:${h}cm;
+    background:linear-gradient(${gdir},${c1},${c2});
+    color:${textColor};
+    display:flex; flex-direction:column;
+    padding:18px 24px; box-sizing:border-box; overflow:hidden; position:relative;
+  ">
+    <div style="display:flex;align-items:center;gap:10px;width:100%;">
+      ${logoHtml}
+      <span style="font-size:${eventSize}px;font-weight:600;font-family:'Noto Serif TC',serif;">${eventTitle}</span>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+      <div style="display:flex;flex-direction:row;align-items:baseline;gap:20px;justify-content:center;">
+        <span style="font-size:${nameSize}px;font-weight:900;line-height:1.15;letter-spacing:0.06em;font-family:'Noto Serif TC',serif;">${name}</span>
+        ${job ? `<span style="font-size:${titleSize}px;letter-spacing:0.1em;opacity:0.85;font-family:'Noto Serif TC',serif;">${job}</span>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildTentCard(name, job, opts) {
+  const { w, h } = opts;
+  const face = buildNameplateHTML(name, job, opts);
+  return `<div style="
+    width:${w}cm; height:${h*2}cm;
+    position:relative; display:flex; flex-direction:column;
+    box-shadow:0 3px 16px rgba(0,0,0,0.13); border-radius:2px; overflow:hidden;
+  ">
+    <div style="position:absolute;top:50%;left:0;width:100%;height:0;border-top:1.5px dashed rgba(100,100,100,0.35);z-index:10;transform:translateY(-50%);"></div>
+    <div style="width:100%;height:${h}cm;transform:rotate(180deg);transform-origin:center center;flex-shrink:0;">${face}</div>
+    <div style="width:100%;height:${h}cm;flex-shrink:0;">${face}</div>
+  </div>`;
+}
+
+function getNcOpts() {
+  return {
+    w: parseFloat(ncv('nc-width')) || 19.5,
+    h: parseFloat(ncv('nc-height')) || 6.5,
+    c1: ncv('nc-c1') || '#ffffff',
+    c2: ncv('nc-c2') || '#dce8f5',
+    gdir: ncv('nc-gradient') || 'to right',
+    textColor: ncv('nc-tc') || '#1a2b4a',
+    nameSize: parseInt(ncv('nc-namesize')) || 60,
+    titleSize: parseInt(ncv('nc-titlesize')) || 22,
+    eventSize: parseInt(ncv('nc-eventsize')) || 16,
+    eventTitle: ncv('nc-event') || '',
+    logo: ncLogoDataUrl,
+  };
+}
+
+function renderNamecards() {
+  // update color labels
+  ['nc-c1','nc-c2','nc-tc'].forEach(id => {
+    const lbl = document.getElementById(id+'-lbl');
+    if (lbl) lbl.textContent = document.getElementById(id)?.value || '';
+  });
+
+  const attendees = getNcAttendees();
+  document.getElementById('nc-count').textContent = attendees.length ? `共識別出 ${attendees.length} 筆` : '';
+
+  const empty = document.getElementById('nc-empty');
+  const cards = document.getElementById('nc-cards');
+
+  if (!attendees.length) {
+    empty.style.display = '';
+    cards.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const opts = getNcOpts();
+  cards.innerHTML = attendees.map((a,i) => `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:20px;">
+      <div class="nc-card-wrap">${buildTentCard(a.name, a.job, opts)}</div>
+      <div class="nc-dims">${opts.w}cm × ${opts.h*2}cm（摺疊後單面 ${opts.h}cm）</div>
+    </div>`
+  ).join('');
+}
+
+function printNamecards() {
+  const attendees = getNcAttendees();
+  if (!attendees.length) { showToast('請先輸入名單再列印'); return; }
+  const opts = getNcOpts();
+  const printArea = document.getElementById('nc-print-area');
+  printArea.innerHTML = attendees.map(a =>
+    `<div class="nc-print-item">${buildTentCard(a.name, a.job, opts)}</div>`
+  ).join('');
+  document.body.classList.remove('print-blank');
+  document.body.classList.add('print-namecard');
+  window.print();
+  setTimeout(() => document.body.classList.remove('print-namecard'), 1000);
+}
+
+// Init
 document.addEventListener('DOMContentLoaded', () => {
-  // Set today's date as default for sign-in sheet
+  document.getElementById('nc-event').addEventListener('input', renderNamecards);
   const today = new Date().toISOString().slice(0,10);
   document.getElementById('s-date').value = today;
   renderSheet();
